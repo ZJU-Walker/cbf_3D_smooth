@@ -1,12 +1,12 @@
 //
-// Created by qiayuan on 2022/8/10.
+// Created by Ke Wang on 2023/7/18.
 //
 
 #pragma once
 
 #include <ocs2_legged_robot/common/utils.h>
 
-#include <cbf_geometry/DistanceQp2d.h>
+#include <cbf_geometry/DistanceQp3d.h>
 
 namespace cbf {
 using namespace ocs2;
@@ -28,12 +28,12 @@ class DualityInitializer : public Initializer {
 
   scalar_t lastTime_{};
   vector_t lastState_;
-  std::vector<std::shared_ptr<Duality2d> > qp_;
+  std::vector<std::shared_ptr<Duality3d>> qp_;// change to 3d
 };
 
 DualityInitializer::DualityInitializer(DualityInfo info, const SwitchedModelReferenceManager& referenceManager,
                                        const DualityObstacles& obstacles)
-    : info_(std::move(info)), referenceManagerPtr_(&referenceManager), obstacles_(obstacles), qp_(info_.numObstacles) {
+    : info_(std::move(info)), referenceManagerPtr_(&referenceManager), obstacles_(obstacles), qp_(info_.numObstacles * info_.numRobots) {
   lastState_ = vector_t::Zero(info_.centroidalInfo.stateDim);
 }
 
@@ -46,13 +46,13 @@ void DualityInitializer::compute(scalar_t time, const vector_t& state, scalar_t 
 
   const auto contact_flags = referenceManagerPtr_->getContactFlags(time);
   input = weightCompensatingInput(info_.centroidalInfo, contact_flags);
-
-  auto robot = createRobotRegion(state, info_.centroidalInfo);
-
+  auto robot = createRobotRegion3d(state, info_.centroidalInfo);// need to change to 3d
   bool need_update = false;
   for (size_t o = 0; o < info_.numObstacles; o++) {
-    if (qp_[o] == nullptr) {
-      need_update = true;
+    for (size_t r = 0; r < info_.numRobots; r++) {
+      if (qp_[o * info_.numRobots + r] == nullptr) {
+        need_update = true;
+      }
     }
   }
   if (lastTime_ != time && !lastState_.isApprox(state)) {
@@ -60,18 +60,26 @@ void DualityInitializer::compute(scalar_t time, const vector_t& state, scalar_t 
   }
   if (need_update) {
     for (size_t o = 0; o < info_.numObstacles; o++) {
-      auto obstacle = obstacles_.getRegion(o);
-      qp_[o] = std::make_shared<Duality2d>(robot, obstacle);
+      for (size_t r = 0; r < info_.numRobots; r++) {
+        auto obstacle = obstacles_.getRegion3d(o);
+        qp_[o * info_.numRobots + r] = std::make_shared<Duality3d>(robot[r], obstacle);// change to 3d
+      }
     }
   }
 
-  getLambda2D(input, info_).setZero();
+  getLambda3D(input, info_).setZero();// need to change to 3d, lambda is 12 x 1
+  // qp_[o] is solution of dual problem, sol_ = [lambda_R; lambda_O] ((n_R+n_O) x 1)
+  // 3D, for robot and obstacle, only consider cuboid, means dimension of a is 6x3, b is 6x1, lambda is 6x1, num_points = 6 (actually is num_face, = 6)
+
   for (size_t o = 0; o < info_.numObstacles; o++) {
-    double dist = qp_[o]->getDistance();
-    if (!isnan(dist) && dist > 1e-3) {
-      vector_t lambda = (0.5 / dist) * qp_[o]->getSolution();
-      getRobotLambda(input, info_, o) = lambda.head(4);
-      getObstacleLambda(input, info_, o) = lambda.tail(info_.numPoints);
+    for (size_t r =0; r < info_.numRobots; r++) {
+      double dist = qp_[o * info_.numRobots + r]->getDistance();
+      if (!isnan(dist) && dist > 1e-3) {
+        vector_t lambda = (0.5 / dist) * qp_[o * info_.numRobots + r]->getSolution();// TODO
+        // vector_t lambda = qp_[o * info_.numRobots + r]->getSolution();
+        getRobotLambda3d(input, info_, o, r) = lambda.head(6);
+        getObstacleLambda3d(input, info_, o, r) = lambda.tail(6);// original is info_.numPoints, but only consider cuboid, so num_points(faces) = 6
+      }
     }
   }
 }

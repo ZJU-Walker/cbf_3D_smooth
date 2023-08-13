@@ -15,4 +15,6 @@
     <depend>roscpp</depend>
     <depend>ocs2_core</depend>
     <depend>qpoases_catkin</depend>
+
+    <test_depend>cbf_geometry_test</test_depend>
 </package>

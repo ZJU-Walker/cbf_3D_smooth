@@ -37,8 +37,8 @@ include_directories(
 
 
 add_library(${PROJECT_NAME}
-        src/ConvexRegion2d.cpp
-        src/DistanceQp2d.cpp
+        src/ConvexRegion3d.cpp
+        src/DistanceQp3d.cpp
         )
 
 target_link_libraries(${PROJECT_NAME}
@@ -69,7 +69,7 @@ install(DIRECTORY include/${PROJECT_NAME}/
 #############
 if (CATKIN_ENABLE_TESTING)
     catkin_add_gtest(${PROJECT_NAME}_test
-            test/ConvexRegion2dTest.cpp
+            test/ConvexRegion3dTest.cpp
             )
 
     target_link_libraries(${PROJECT_NAME}_test

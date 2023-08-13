@@ -1,72 +1,125 @@
 //
-// Created by qiayuan on 2022/8/9.
+// Created by Ke Wang on 2023/7/19.
+// I need to define obstacles in 3D but rectangle method
 //
 
 #pragma once
 
 #include "cbf_interface/FactoryAccessHelper.h"
 
-#include <cbf_geometry/ConvexRegion2d.h>
+#include <cbf_geometry/ConvexRegion3d.h>
 
 namespace cbf {
+
 class DualityObstacles {
  public:
   DualityObstacles(const DualityInfo& info) : info_(info) {
-    for (size_t i = 0; i < info_.numObstacles; ++i) vertex_.push_back(Vertex2d<scalar_t>(info_.numPoints, vector_t()));
+    for (size_t i = 0; i < info_.numObstacles; ++i) {
+      vector_temp<scalar_t> ZeroPose(6);
+      vector_temp<scalar_t> ZeroSize(3);
+      ZeroPose << 2, 2, 0.25, 0, 0, 0;
+      ZeroSize << 0.5, 0.5, 0.5;
+      cuboid_.push_back(Rectangle3d<scalar_t>(ZeroPose, ZeroSize));
+    }
   }
 
-  void setPointsArray(const vector_array_t& points_array) {
-    vertex_.clear();
-    for (const auto& i : points_array) vertex_.push_back(Vertex2d<scalar_t>(info_.numPoints, i));
-    for (size_t i = points_array.size(); i < info_.numObstacles; ++i) vertex_.push_back(Vertex2d<scalar_t>(info_.numPoints, vector_t()));
+  void setObstacle3d(const vector_array2_t& Obsatcle3d) {
+    cuboid_.clear();
+    // for (const auto& i : Obsatcle3d) {
+    //   // cuboid_.push_back(Rectangle3d<scalar_t>(i[0], i[1]));
+    //   // TODO: Test here
+    //   vector_temp<scalar_t> ZeroP_Test;
+    //   vector_temp<scalar_t> ZeroS_Test;
+    //   ZeroP_Test << 0, 0, 0, 0, 0, 0;
+    //   ZeroS_Test << 0, 0, 0;
+    //   cuboid_.push_back(Rectangle3d<scalar_t>(ZeroP_Test, ZeroS_Test))
+    // }
+    // for (size_t i = Obsatcle3d.size(); i < info_.numObstacles; ++i) {
+    for (size_t i = 0; i < info_.numObstacles; ++i) {
+      vector_temp<scalar_t> ZeroPose(6);
+      vector_temp<scalar_t> ZeroSize(3);
+      ZeroPose << 2, 2, 0.25, 0, 0, 0;
+      ZeroSize << 0.5, 0.5, 0.5;
+      cuboid_.push_back(Rectangle3d<scalar_t>(ZeroPose, ZeroSize));
+    }
   }
 
-  virtual size_t getParametersSize() const { return 3 * info_.numObstacles * info_.numPoints; }
+   // Get size of parameters
+   // A and B
+   // A : 3, B : 1
+   // Each obsatcle has 6 constraints
+  virtual size_t getParametersSize() const {
+    return 4 * info_.numObstacles * 6;
+  }
 
+   // Get parameters
+   // Pass A and B
   virtual vector_t getParameters() const {
     vector_t ret = vector_t::Zero(getParametersSize());
     for (size_t o = 0; o < info_.numObstacles; ++o) {
-      for (int p = 0; p < info_.numPoints; ++p) ret.segment<2>(o * 3 * info_.numPoints + p * 2) = vertex_[o].getA().row(p);
-      ret.segment(o * 3 * info_.numPoints + info_.numPoints * 2, info_.numPoints) = vertex_[o].getB();
+      for (size_t p = 0; p < 6; ++p) {
+        ret.segment<3>(o * 4 * 6 + p * 3) = cuboid_[o].getA().row(p);
+      }
+      ret.segment(o * 4 * 6 + 6 * 3, 6) = cuboid_[o].getB();
     }
-
     return ret;
   }
 
-  Vertex2d<scalar_t> getRegion(size_t i) const { return vertex_[i]; }
+   // Get region at index i
+  Rectangle3d<scalar_t> getRegion3d(size_t i) const {
+    return cuboid_[i];
+  }
 
-  DualityInfo getInfo() const { return info_; }
+   // Get info
+  DualityInfo getInfo() const { 
+    return info_; 
+  }
 
  protected:
   const DualityInfo& info_;
-  std::vector<Vertex2d<scalar_t>> vertex_;
+  std::vector<Rectangle3d<scalar_t>> cuboid_;
 };
+
 
 class CbfObstacles : public DualityObstacles {
  public:
   CbfObstacles(const DualityInfo& info) : DualityObstacles(info) {
     time_ = 0.;
-    dists_ = vector_t::Zero(info_.numObstacles);
+    vector_array_t dists_(info_.numObstacles, vector_t::Zero(info_.numRobots));
   }
 
-  void setDists(scalar_t time, const vector_t& dists) {
+  void setDists(scalar_t time, const vector_array_t& dists) {
     time_ = time;
     dists_ = dists;
   }
 
-  size_t getParametersSize() const override { return DualityObstacles::getParametersSize() + 1 + info_.numObstacles; }
+  // Update parameters size (add time and dists)
+  size_t getParametersSize() const override { 
+    return DualityObstacles::getParametersSize() + 1 + info_.numObstacles * info_.numRobots; 
+  }
 
+  // Each robot has 9 boxs (1 body + 4 legs * 2), so each obstacle has 9 distances to robot
   vector_t getParameters() const override {
-    vector_t ret = vector_t::Zero(3 * info_.numObstacles * info_.numPoints + 1 + info_.numObstacles);
-    ret.head(3 * info_.numObstacles * info_.numPoints) = DualityObstacles::getParameters();
-    ret(3 * info_.numObstacles * info_.numPoints) = time_;
-    ret.tail(info_.numObstacles) = dists_;
+    vector_t ret = vector_t::Zero(4 * info_.numObstacles * 6 + 1 + info_.numObstacles * info_.numRobots);
+    for (size_t o = 0; o < info_.numObstacles; ++o) {
+      for (int p = 0; p < 6; ++p) {
+        ret.segment<3>(o * 4 * 6 + p * 3) = cuboid_[o].getA().row(p);
+      }
+      ret.segment(o * 4 * 6 + 6 * 3, 6) = cuboid_[o].getB();
+    }
+    ret(4 * info_.numObstacles * 6) = time_;
+    for (size_t o = 0; o < info_.numObstacles; ++o) {
+      for (int p = 0; p < info_.numRobots; ++p) {
+        ret.segment<1>(4 * info_.numObstacles * 6 + 1 + o * info_.numRobots + p) = dists_[o].row(p);
+      }
+    }
     return ret;
   }
 
  private:
   scalar_t time_;
-  vector_t dists_;
+  vector_array_t dists_;
+
 };
 
 }  // namespace cbf

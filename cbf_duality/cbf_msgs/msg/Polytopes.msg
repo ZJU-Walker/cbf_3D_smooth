@@ -1,5 +1,4 @@
-float64 min_z
-float64 max_z
+# Polytopes for 3D pose and size
 
-geometry_msgs/Point[] points
-
+geometry_msgs/Pose pose
+geometry_msgs/Vector3 size

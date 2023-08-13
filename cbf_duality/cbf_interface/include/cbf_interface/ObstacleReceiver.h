@@ -1,5 +1,5 @@
 //
-// Created by qiayuan on 2022/8/9.
+// Created by Ke Wang on 2023/7/20.
 //
 
 #pragma once
@@ -8,6 +8,7 @@
 
 #include <cbf_msgs/Obstacle.h>
 #include <ros/ros.h>
+#include <visualization_msgs/MarkerArray.h>
 
 #include <ocs2_mpc/MPC_BASE.h>
 #include <ocs2_oc/synchronized_module/SolverSynchronizedModule.h>
@@ -27,21 +28,21 @@ class ObstacleReceiver : public SolverSynchronizedModule {
   void postSolverRun(const PrimalSolution& primalSolution) override{};
 
  protected:
-  std::shared_ptr<DualityObstacles> obstacle_ptr_;
-  vector_t dists_;
+  std::shared_ptr<DualityObstacles> obstaclePtr_;
+  vector_array_t dists_;
 
  private:
-  void pointsCallback(const cbf_msgs::ObstacleConstPtr& msg);
+  void obstacleparamCallback(const cbf_msgs::ObstacleConstPtr& msg);
 
   SolverBase* solver_;
 
   ros::Subscriber subscriber_;
   ros::Publisher pub_;
 
-  std::mutex mutex;
-  std::atomic_bool pointsUpdated_;
-  vector_array_t pointsArray_;
-  size_t msgsSize_;
+  std::mutex mutex_;
+  std::atomic_bool obstacleUpdated_{};
+  vector_array2_t obstacle3d_;//contain param for obstacles, each element param contains pose and size
+  size_t msgsSize_{};
 };
 
 class CbfObstaclesReceiver : public ObstacleReceiver {

@@ -15,15 +15,15 @@
     <node pkg="legged_controllers" type="legged_target_trajectories_publisher" name="legged_robot_target"
           output="screen"/>
 
-    <node pkg="rostopic" type="rostopic" name="obstacle_visualiser"
-          args="pub /obstacle1_marker visualization_msgs/Marker
-  '{header: {seq: 0, stamp: {secs: 0, nsecs: 0}, frame_id: 'odom'},
-    ns: '', id: 0, type: 3, action: 0,
+    <node pkg="rostopic" type="rostopic" name="obstacle_sphere_visualiser"
+          args="pub /obstacle_marker visualization_msgs/MarkerArray
+  '{markers: [{header: {seq: 0, stamp: {secs: 0, nsecs: 0}, frame_id: 'odom'},
+    ns: 'sphere', id: 0, type: 3, action: 0,
     pose: {position: {x: 0.6, y: 0.8, z: 0.1}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}},
     scale: {x: 0.707, y: 0.707, z: 0.1},
     color: {r: 0.6350, g: 0.0780, b: 0.1840, a: 0.3},
     lifetime: {secs: 0, nsecs: 0},
-    frame_locked: true }' -r 2 " output="screen"/>
+    frame_locked: true }]}' -r 2 " output="screen"/>
 
     <group if="$(arg rviz)">
         <arg name="rvizconfig" default="$(find cbf_controllers)/config/rviz.rviz"/>

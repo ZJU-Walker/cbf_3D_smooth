@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+
+<launch>
+    <arg name="rviz" default="true"/>
+
+    <!-- <include file="$(find cbf_controllers)/launch/common.launch"/>
+    <include file="$(find cbf_controllers)/test/obstacle_simple.launch"/> -->
+
+    <!-- <node name="controller_loader" pkg="controller_manager" type="controller_manager" output="screen"
+          args="spawn
+          controllers/dcbf_duality_controller
+"/> -->
+<!-- 
+    <node pkg="legged_controllers" type="legged_target_trajectories_publisher" name="legged_robot_target"
+          output="screen"/> -->
+    
+    <!-- <node pkg="rostopic" type="rostopic" name="obstacle_visualiser"
+          args="pub /obstacle_marker visualization_msgs/MarkerArray
+      '{markers: [{header: {seq: 0, stamp: {secs: 0, nsecs: 0}, frame_id: 'odom'},
+        ns: 'polytope', id: 0, type: 4, action: 0,
+        pose: {position: {x: 0.0, y: 0.0, z: 0.25}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}},
+        scale: {x: 0.02, y: 0.0, z: 0.5},
+        color: {r: 0.7, g: 0., b: 0., a: 1.0},
+        lifetime: {secs: 0, nsecs: 0},
+        points: [{x: 0.35, y: 0.55, z: 0.0}, {x: 0.85, y: 0.55, z: 0.0}, {x: 0.85, y: 1.05, z: 0.0}, {x: 0.35, y: 1.05, z: 0.0}, {x: 0.35, y: 0.55, z: 0.0}],
+        frame_locked: false }]}' -r 2 " output="screen"/> -->
+
+<node pkg="rostopic" type="rostopic" name="obstacle3d_visualiser"
+          args="pub /obstacle3d_marker visualization_msgs/MarkerArray
+      '{markers: [{header: {seq: 0, stamp: {secs: 0, nsecs: 0}, frame_id: 'odom'},
+        ns: 'cuboid_3d', id: 0, type: 1, action: 0,
+        pose: {position: {x: 10.0, y: 10.0, z: 0.25}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}},
+        scale: {x: 0.5, y: 0.5, z: 0.5},
+        color: {r: 0.7, g: 0., b: 0., a: 1.0},
+        lifetime: {secs: 0, nsecs: 0},
+        frame_locked: false }]}' -r 2 " output="screen"/>
+
+    <group if="$(arg rviz)">
+        <arg name="rvizconfig" default="$(find cbf_controllers)/config/rviz_3d.rviz"/>
+        <node pkg="rviz" type="rviz" name="rviz" args="-d $(arg rvizconfig)" output="screen"/>
+    </group>
+</launch>

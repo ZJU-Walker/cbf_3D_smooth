@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
     marker.type = visualization_msgs::Marker::LINE_STRIP;
     marker.action = visualization_msgs::Marker::ADD;
     marker.pose.orientation.w = 1;
-    marker.scale.x = 0.015;
+    marker.scale.x = 0.03;
     marker.color.r = 0.4660;
     marker.color.g = 0.6740;
     marker.color.b = 0.1880;

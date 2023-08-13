@@ -1,36 +1,51 @@
-//
-// Created by qiayuan on 2022/7/25.
-//
+## ConvexRegion2d.h
 
-//here define ConvexRegion in Linear constraint Ax<=B, 
-//the class ConvexRegion2d contains 2 method to define the constraint, the Rectangle and Vertex method
-//define 2 function to get A and B to represent the convex area
+```cpp
+template <typename SCALAR>
+class ConvexRegion2d {
+ public:
+  explicit ConvexRegion2d(size_t num_points) {
+    this->a_ = matrix_temp<SCALAR>::Zero(num_points, 2);//The matrix's dimensions are num_points x 2 and are initialized to zero
+    this->b_ = vector_temp<SCALAR>::Zero(num_points);//The vector's dimensions are num_points x 1 and are initialized to zero
+  }
+  matrix_temp<SCALAR> getA() const { return a_; }
+  vector_temp<SCALAR> getB() const { return b_; }
 
+ protected:
+  matrix_temp<SCALAR> a_;
+  vector_temp<SCALAR> b_;
+};
+```
 
-#include "cbf_geometry/ConvexRegion2d.h"
+`num_points`，`a_`和`b_`代表什么？
 
-#include <ocs2_core/automatic_differentiation/Types.h>
-#include <qpOASES.hpp>
+## ConvexRegion2d.cpp
 
-namespace cbf {
-using namespace ocs2;
-
-//rectangle method (2d):
-//for a point (x,y) and a rectangle left bottom point(x0,y0) and right upper point(x1,y1)
-// if x0<x<x1; y0<y<y1, then it is in this area
+```cpp
 template <typename SCALAR>
 Rectangle2d<SCALAR>::Rectangle2d(const vector_temp<SCALAR>& pose, const vector_temp<SCALAR>& size) : ConvexRegion2d<SCALAR>(4) {
   matrix_temp<SCALAR> rot(2, 2);
   rot << cos(-pose(2)), -sin(-pose(2)), sin(-pose(2)), cos(-pose(2));
-  this->a_ << SCALAR(1), SCALAR(0), SCALAR(-1), SCALAR(0), SCALAR(0), SCALAR(1), SCALAR(0), SCALAR(-1);//a is 4x2
+  this->a_ << SCALAR(1), SCALAR(0), SCALAR(-1), SCALAR(0), SCALAR(0), SCALAR(1), SCALAR(0), SCALAR(-1);
   this->a_ = this->a_ * rot;
-  vector_temp<SCALAR> pos = rot * pose.head(2);//pose.head(2) represent x,y of the centroid point, rotate the centroid
-  this->b_ << pos(0) + size(0) / 2, -(pos(0) - size(0) / 2), pos(1) + size(1) / 2, -(pos(1) - size(1) / 2);//b is 4x1
+  vector_temp<SCALAR> pos = rot * pose.head(2);
+  this->b_ << pos(0) + size(0) / 2, -(pos(0) - size(0) / 2), pos(1) + size(1) / 2, -(pos(1) - size(1) / 2);
 }
-//vertex method (2d):
-//use cross product to define a convex area
-//take 3 points each time, if the are of the triangle (calculated by cross product) is positive (for all points)
-//it is a convex area  
+```
+
+`pose`每项代表什么
+
+pose(0): x of centroid
+
+pose(1): y of centroid
+
+pose(2): the rotate angle $\theta$
+
+`size`的组成？size(0)，size(1)各项是什么
+
+**`b_`这里计算的是什么**
+
+```cpp
 template <typename SCALAR>
 Vertex2d<SCALAR>::Vertex2d(size_t num_points, const vector_temp<SCALAR>& points) : ConvexRegion2d<SCALAR>(num_points) {
   size_t size_points = points.size() / 2;  // The numPoints actually greater or equal the size of points/2
@@ -59,13 +74,6 @@ Vertex2d<SCALAR>::Vertex2d(size_t num_points, const vector_temp<SCALAR>& points)
     }
   }
 }
+```
 
-// explicit template instantiation
-template class ConvexRegion2d<scalar_t>;
-template class ConvexRegion2d<ad_scalar_t>;
-template class Rectangle2d<scalar_t>;
-template class Rectangle2d<ad_scalar_t>;
-template class Vertex2d<scalar_t>;
-template class Vertex2d<ad_scalar_t>;
-
-}  // namespace cbf
+这一段代码在干什么？

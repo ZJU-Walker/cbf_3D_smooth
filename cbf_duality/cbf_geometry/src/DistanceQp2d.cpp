@@ -19,7 +19,7 @@ DistanceQp2d::DistanceQp2d(const ConvexRegion2d<scalar_t>& region0, ConvexRegion
   c_.block(b0.size(), 2, b1.size(), 2) = region1.getA();
   ub_ = vector_t::Zero(b0.size() + b1.size());
   ub_ << b0, b1;
-
+      
   auto qpProblem = qpOASES::QProblem(4, ub_.size());
   qpOASES::Options options;
   options.setToMPC();
@@ -54,6 +54,15 @@ Duality2d::Duality2d(const ConvexRegion2d<scalar_t>& region0, ConvexRegion2d<sca
   options.enableEqualities = qpOASES::BT_TRUE;
   qpProblem_->setOptions(options);
   int n_wsr = 50;
+  //example.init（H，g，A，lb，ub，lbA，ubA，nWSR，cputime）
+	//H：hessian矩阵
+	//g：梯度向量
+	//A：约束矩阵
+	// lb ub：自变量的下边界和上边界向量
+	// lbA ubA：上下限约束向量
+	//  这个向量中不仅包含了不等式，也包括了等式的约束,将上限和下限设置为相同数值即可表示为等式约束！
+	// nWSR： 最大迭代次数
+	// cputime：如果输入不为空，就会输出整个初始化和求解所花的时间。
   qpProblem_->init(h_.data(), g_.data(), c_.data(), l_.data(), nullptr, lb_.data(), ub_.data(), n_wsr);
 }
 

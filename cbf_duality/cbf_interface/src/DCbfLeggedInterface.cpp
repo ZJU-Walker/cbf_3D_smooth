@@ -12,27 +12,6 @@
 #include <ocs2_core/soft_constraint/StateInputSoftConstraint.h>
 
 namespace cbf {
-void DCbfSimpleLeggedInterface::setupOptimalControlProblem(const std::string& taskFile, const std::string& urdfFile,
-                                                           const std::string& referenceFile, bool verbose) {
-  LeggedInterface::setupOptimalControlProblem(taskFile, urdfFile, referenceFile, verbose);
-
-  vector_t obstaclePos(2);
-  obstaclePos << 0.6, 0.8;
-  obstacles_.push_back(std::make_shared<ObstacleSimple>(getCentroidalModelInfo(), obstaclePos, 0.353));
-
-  for (int i = 0; i < obstacles_.size(); ++i) {
-    std::unique_ptr<DCbfSimpleAd> cbfPtr(new DCbfSimpleAd(*obstacles_[i], getCentroidalModelInfo()));
-    std::unique_ptr<PenaltyBase> penalty(new RelaxedBarrierPenalty(RelaxedBarrierPenalty::Config(0.1, 1e-3)));
-    getOptimalControlProblem().softConstraintPtr->add(
-        "obstacle_" + std::to_string(i),
-        std::unique_ptr<StateInputCost>(new StateInputSoftConstraint(std::move(cbfPtr), std::move(penalty))));
-  }
-}
-
-void DCbfSimpleLeggedInterface::setupModel(const std::string& taskFile, const std::string& urdfFile, const std::string& referenceFile,
-                                           bool verbose) {
-  LeggedInterface::setupModel(taskFile, urdfFile, referenceFile, verbose);
-}
 
 void DualityLeggedInterface::setupOptimalControlProblem(const std::string& taskFile, const std::string& urdfFile,
                                                         const std::string& referenceFile, bool verbose) {
@@ -64,7 +43,7 @@ void DualityLeggedInterface::setupModel(const std::string& taskFile, const std::
                                         bool verbose) {
   LeggedInterface::setupModel(taskFile, urdfFile, referenceFile, verbose);
 
-  dualityInfo_ = createDualityInfo(getCentroidalModelInfo(), 4, 15);
+  dualityInfo_ = createDualityInfo(getCentroidalModelInfo(), 1, 6, 9);// TODO
   getCentroidalModelInfo() = dualityInfo_.centroidalInfo;
 }
 
