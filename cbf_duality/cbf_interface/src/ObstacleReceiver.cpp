@@ -68,7 +68,7 @@ void ObstacleReceiver::preSolverRun(scalar_t /*initTime*/, scalar_t /*finalTime*
         distances.dist_calf4.push_back(dists_[o][0]);
       }
       else if (num_robots == 9) {
-        std::cout << "Whole body involved" << std::endl;
+        std::cout << "dist_thigh:" << dists_[o][1] << std::endl;
         distances.dist_body.push_back(dists_[o][0]);
         distances.dist_thigh1.push_back(dists_[o][1]);
         distances.dist_thigh2.push_back(dists_[o][2]);
