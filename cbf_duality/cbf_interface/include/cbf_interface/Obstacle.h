@@ -15,33 +15,40 @@ class DualityObstacles {
  public:
   DualityObstacles(const DualityInfo& info) : info_(info) {
     for (size_t i = 0; i < info_.numObstacles; ++i) {
-      vector_temp<scalar_t> ZeroPose(6);
-      vector_temp<scalar_t> ZeroSize(3);
-      ZeroPose << 2, 2, 0.25, 0, 0, 0;
-      ZeroSize << 0.5, 0.5, 0.5;
-      cuboid_.push_back(Rectangle3d<scalar_t>(ZeroPose, ZeroSize));
+      // vector_temp<scalar_t> ZeroPose(6);
+      // vector_temp<scalar_t> ZeroSize(3);
+      // ZeroPose << 2, 2, 0.25, 0, 0, 0;
+      // ZeroSize << 0.5, 0.5, 0.5;
+      // cuboid_.push_back(Rectangle3d<scalar_t>(ZeroPose, ZeroSize));
+      vector_temp<scalar_t> Obstalce_1_Pose(6);
+      vector_temp<scalar_t> Obstalce_1_Size(3);
+      Obstalce_1_Pose << 2, 0, 0.0, 0, 0, 0;
+      Obstalce_1_Size << 0.3, 1.0, 0.04;
+      cuboid_.push_back(Rectangle3d<scalar_t>(Obstalce_1_Pose, Obstalce_1_Size));
+
     }
   }
 
   void setObstacle3d(const vector_array2_t& Obsatcle3d) {
     cuboid_.clear();
     // for (const auto& i : Obsatcle3d) {
-    //   // cuboid_.push_back(Rectangle3d<scalar_t>(i[0], i[1]));
-    //   // TODO: Test here
-    //   vector_temp<scalar_t> ZeroP_Test;
-    //   vector_temp<scalar_t> ZeroS_Test;
-    //   ZeroP_Test << 0, 0, 0, 0, 0, 0;
-    //   ZeroS_Test << 0, 0, 0;
-    //   cuboid_.push_back(Rectangle3d<scalar_t>(ZeroP_Test, ZeroS_Test))
+    //   cuboid_.push_back(Rectangle3d<scalar_t>(i[0], i[1]));
     // }
-    // for (size_t i = Obsatcle3d.size(); i < info_.numObstacles; ++i) {
-    for (size_t i = 0; i < info_.numObstacles; ++i) {
-      vector_temp<scalar_t> ZeroPose(6);
-      vector_temp<scalar_t> ZeroSize(3);
-      ZeroPose << 2, 2, 0.25, 0, 0, 0;
-      ZeroSize << 0.5, 0.5, 0.5;
-      cuboid_.push_back(Rectangle3d<scalar_t>(ZeroPose, ZeroSize));
-    }
+
+    // for (size_t i = 0; i < info_.numObstacles; ++i) {
+      // vector_temp<scalar_t> ZeroPose(6);
+      // vector_temp<scalar_t> ZeroSize(3);
+      // ZeroPose << 2, 2, 0.25, 0, 0, 0;
+      // ZeroSize << 0.5, 0.5, 0.5;
+      // cuboid_.push_back(Rectangle3d<scalar_t>(ZeroPose, ZeroSize));
+    // }
+
+    vector_temp<scalar_t> Obstalce_1_Pose(6);
+    vector_temp<scalar_t> Obstalce_1_Size(3);
+    Obstalce_1_Pose << 2, 0, 0.0, 0, 0, 0;
+    Obstalce_1_Size << 0.3, 1.0, 0.04;
+    cuboid_.push_back(Rectangle3d<scalar_t>(Obstalce_1_Pose, Obstalce_1_Size));
+    
   }
 
    // Get size of parameters
