@@ -20,10 +20,15 @@ class DualityObstacles {
       // ZeroPose << 2, 2, 0.25, 0, 0, 0;
       // ZeroSize << 0.5, 0.5, 0.5;
       // cuboid_.push_back(Rectangle3d<scalar_t>(ZeroPose, ZeroSize));
+      // vector_temp<scalar_t> Obstalce_1_Pose(6);
+      // vector_temp<scalar_t> Obstalce_1_Size(3);
+      // Obstalce_1_Pose << 20, 0, 0.0, 0, 0, 0;
+      // Obstalce_1_Size << 0.3, 1.0, 0.04;
+
       vector_temp<scalar_t> Obstalce_1_Pose(6);
       vector_temp<scalar_t> Obstalce_1_Size(3);
-      Obstalce_1_Pose << 2, 0, 0.0, 0, 0, 0;
-      Obstalce_1_Size << 0.3, 1.0, 0.04;
+      Obstalce_1_Pose << 2, 0, 0.05, 0, 0, 0;
+      Obstalce_1_Size << 1, 1, 0.1;
       cuboid_.push_back(Rectangle3d<scalar_t>(Obstalce_1_Pose, Obstalce_1_Size));
 
     }
@@ -31,6 +36,7 @@ class DualityObstacles {
 
   void setObstacle3d(const vector_array2_t& Obsatcle3d) {
     cuboid_.clear();
+    std::cout << "[Obstalce.h] setObstacle3d begins" << std::endl;
     // for (const auto& i : Obsatcle3d) {
     //   cuboid_.push_back(Rectangle3d<scalar_t>(i[0], i[1]));
     // }
@@ -43,10 +49,14 @@ class DualityObstacles {
       // cuboid_.push_back(Rectangle3d<scalar_t>(ZeroPose, ZeroSize));
     // }
 
+    // vector_temp<scalar_t> Obstalce_1_Pose(6);
+    // vector_temp<scalar_t> Obstalce_1_Size(3);
+    // Obstalce_1_Pose << 20, 0, 0.0, 0, 0, 0;
+    // Obstalce_1_Size << 0.3, 1.0, 0.04;
     vector_temp<scalar_t> Obstalce_1_Pose(6);
     vector_temp<scalar_t> Obstalce_1_Size(3);
-    Obstalce_1_Pose << 2, 0, 0.0, 0, 0, 0;
-    Obstalce_1_Size << 0.3, 1.0, 0.04;
+    Obstalce_1_Pose << 2, 0, 0.05, 0, 0, 0;
+    Obstalce_1_Size << 1, 1, 0.1;
     cuboid_.push_back(Rectangle3d<scalar_t>(Obstalce_1_Pose, Obstalce_1_Size));
     
   }

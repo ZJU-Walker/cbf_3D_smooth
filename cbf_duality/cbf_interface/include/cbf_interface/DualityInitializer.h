@@ -74,8 +74,10 @@ void DualityInitializer::compute(scalar_t time, const vector_t& state, scalar_t 
   for (size_t o = 0; o < info_.numObstacles; o++) {
     for (size_t r =0; r < info_.numRobots; r++) {
       double dist = qp_[o * info_.numRobots + r]->getDistance();
+      // std::cout << "[DualityInitializer.h] dist: " << dist << std::endl;
       if (!isnan(dist) && dist > 1e-3) {
         vector_t lambda = (0.5 / dist) * qp_[o * info_.numRobots + r]->getSolution();// TODO
+        // std::cout << "[DualityInitializer.h] lambda:\n " << lambda << std::endl;
         // vector_t lambda = qp_[o * info_.numRobots + r]->getSolution();
         getRobotLambda3d(input, info_, o, r) = lambda.head(6);
         getObstacleLambda3d(input, info_, o, r) = lambda.tail(6);// original is info_.numPoints, but only consider cuboid, so num_points(faces) = 6

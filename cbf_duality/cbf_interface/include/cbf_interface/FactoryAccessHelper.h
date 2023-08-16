@@ -217,7 +217,7 @@ template <typename SCALAR>
 Rectangle3d<SCALAR> createRobotRegion3d_body(const vector_temp<SCALAR>& state, const CentroidalModelInfo& info) {
   vector_temp<SCALAR> basePose = centroidal_model::getBasePose(state, info);
   vector_temp<SCALAR> size(3);
-  size << SCALAR(0.59), SCALAR(0.32), SCALAR(0.15);
+  size << SCALAR(0.27), SCALAR(0.18), SCALAR(0.08);// TODO:robot body size to be changed
   return Rectangle3d<SCALAR>(basePose, size);
 }
 
@@ -356,7 +356,8 @@ Rectangle3d<SCALAR> createRobotRegion3d_calf(const vector_temp<SCALAR>& state, c
   // calf_center << SCALAR(0), SCALAR(0), SCALAR(0), SCALAR(0), SCALAR(0), SCALAR(0);
   calf_center << calf_center_inworldframe(0), calf_center_inworldframe(1), calf_center_inworldframe(2), calf_pose_inworldframe(0), calf_pose_inworldframe(1), calf_pose_inworldframe(2);
   vector_temp<SCALAR> size(3);
-  size << SCALAR(0.04), SCALAR(0.04), SCALAR(0.247);
+  size << SCALAR(0.04), SCALAR(0.04), SCALAR(0.25);
+  // size << SCALAR(0.04), SCALAR(0.04), SCALAR(0.22);
   return Rectangle3d<SCALAR>(calf_center, size);
 }
 
@@ -375,7 +376,7 @@ std::vector<Rectangle3d<SCALAR>> createRobotRegion3d (const vector_temp<SCALAR>&
   // ret.push_back(createRobotRegion3d_body(state, info));
   // ret.push_back(createRobotRegion3d_body(state, info));
   // ret.push_back(createRobotRegion3d_body(state, info));
-  // ret.push_back(createRobotRegion3d_body(state, info));
+  // std::cout << "base pose [x,y,z]: " << centroidal_model::getBasePose(state, info)[0] << " " << centroidal_model::getBasePose(state, info)[1] << " " << centroidal_model::getBasePose(state, info)[2] << " " << std::endl;
   ret.push_back(createRobotRegion3d_body(state, info));
   // ret.push_back(createRobotRegion3d_body(state, info));
   // ret.push_back(createRobotRegion3d_body(state, info));
@@ -385,14 +386,19 @@ std::vector<Rectangle3d<SCALAR>> createRobotRegion3d (const vector_temp<SCALAR>&
   // ret.push_back(createRobotRegion3d_body(state, info));
   // ret.push_back(createRobotRegion3d_body(state, info));
   // ret.push_back(createRobotRegion3d_body(state, info));
-  ret.push_back(createRobotRegion3d_thigh(state, info, 1));
-  ret.push_back(createRobotRegion3d_thigh(state, info, 2));
-  ret.push_back(createRobotRegion3d_thigh(state, info, 3));
-  ret.push_back(createRobotRegion3d_thigh(state, info, 4));
-  ret.push_back(createRobotRegion3d_calf(state, info, 1));
-  ret.push_back(createRobotRegion3d_calf(state, info, 2));
-  ret.push_back(createRobotRegion3d_calf(state, info, 3));
-  ret.push_back(createRobotRegion3d_calf(state, info, 4));
+  // ret.push_back(createRobotRegion3d_body(state, info));
+  // ret.push_back(createRobotRegion3d_thigh(state, info, 1));
+  // ret.push_back(createRobotRegion3d_thigh(state, info, 2));
+  // ret.push_back(createRobotRegion3d_thigh(state, info, 3));
+  // ret.push_back(createRobotRegion3d_thigh(state, info, 4));
+  // ret.push_back(createRobotRegion3d_calf(state, info, 1));
+  // ret.push_back(createRobotRegion3d_calf(state, info, 2));
+  // ret.push_back(createRobotRegion3d_calf(state, info, 3));
+  // ret.push_back(createRobotRegion3d_calf(state, info, 4));
+  // ret.push_back(createRobotRegion3d_calf(state, info, 1));
+  // ret.push_back(createRobotRegion3d_calf(state, info, 2));
+  // ret.push_back(createRobotRegion3d_calf(state, info, 3));
+  // ret.push_back(createRobotRegion3d_calf(state, info, 4));
   return ret;
 }
 
