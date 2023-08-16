@@ -1,6 +1,9 @@
 <?xml version="1.0" ?>
 
 <launch>
+    <!-- obstalce visualize -->
+    <include file="$(find cbf_ros)/launch/obstacle_test.launch"/>
+
     <!-- visualization config -->
     <arg name="rviz"               default="true" />
     <arg name="description_name"   default="legged_robot_description"/>
