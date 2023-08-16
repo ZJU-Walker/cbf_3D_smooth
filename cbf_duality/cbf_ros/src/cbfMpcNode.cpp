@@ -50,7 +50,6 @@ using namespace cbf;
 
 int main(int argc, char** argv) {
   std::cout << "[cbfMpcNode.cpp] main step 1" << std::endl;
-
   const std::string robotName = "legged_robot";
 
   // Initialize ros node
@@ -68,12 +67,14 @@ int main(int argc, char** argv) {
 
   // Robot interface
   // LeggedRobotInterface interface(taskFile, urdfFile, referenceFile);
-  DCbfDualityLeggedInterface interface(taskFile, urdfFile, referenceFile, false);
   // DualityLeggedInterface interface(taskFile, urdfFile, referenceFile, false);
+  // interface.setupOptimalControlProblem(taskFile, urdfFile, referenceFile, false);
+
+  // DCbfDualityLeggedInterface interface(taskFile, urdfFile, referenceFile, false);
+  // interface.setupOptimalControlProblem(taskFile, urdfFile, referenceFile, false);
+
+  DualityLeggedInterface interface(taskFile, urdfFile, referenceFile, false);
   interface.setupOptimalControlProblem(taskFile, urdfFile, referenceFile, false);
-  // interface = std::make_shared<DualityLeggedInterface>(taskFile, urdfFile, referenceFile, false);
-  // interface->setupOptimalControlProblem(taskFile, urdfFile, referenceFile, false);
-  // legged::LeggedInterface interface(taskFile, urdfFile, referenceFile);
 
   std::cout << "[cbfMpcNode.cpp] main step 3" << std::endl;
 
@@ -97,10 +98,14 @@ int main(int argc, char** argv) {
   std::cout << "[cbfMpcNode.cpp] main step 6" << std::endl;
 
   // obstalce receiver
+
   auto obstacle_receiver =
-      std::make_shared<CbfObstaclesReceiver>(nodeHandle, dynamic_cast<DCbfDualityLeggedInterface&>(interface).getObstacles(), mpc.getSolverPtr());
+    std::make_shared<ObstacleReceiver>(nodeHandle, dynamic_cast<DualityLeggedInterface&>(interface).getObstacles(), mpc.getSolverPtr());
   mpc.getSolverPtr()->addSynchronizedModule(obstacle_receiver);
 
+  // auto obstacle_receiver =
+  //   std::make_shared<CbfObstaclesReceiver>(nodeHandle, dynamic_cast<DCbfDualityLeggedInterface&>(interface).getObstacles(), mpc.getSolverPtr());
+  // mpc.getSolverPtr()->addSynchronizedModule(obstacle_receiver);
   std::cout << "[cbfMpcNode.cpp] main step 7" << std::endl;
   // Launch MPC ROS node
   MPC_ROS_Interface mpcNode(mpc, robotName);
