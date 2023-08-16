@@ -42,13 +42,14 @@ void DualityLeggedInterface::setupOptimalControlProblem(const std::string& taskF
 void DualityLeggedInterface::setupModel(const std::string& taskFile, const std::string& urdfFile, const std::string& referenceFile,
                                         bool verbose) {
   LeggedInterface::setupModel(taskFile, urdfFile, referenceFile, verbose);
-
-  dualityInfo_ = createDualityInfo(getCentroidalModelInfo(), 1, 6, 9);// TODO
+  std::cout << "[DCbfLeggedInterface.h] create duality_info: robot_num = 1" << std::endl;
+  dualityInfo_ = createDualityInfo(getCentroidalModelInfo(), 1, 6, 1);// TODO
   getCentroidalModelInfo() = dualityInfo_.centroidalInfo;
 }
 
 void DCbfDualityLeggedInterface::setupOptimalControlProblem(const std::string& taskFile, const std::string& urdfFile,
                                                             const std::string& referenceFile, bool verbose) {
+  std::cout << "[DCbfLeggedInterface.cpp] DCbf setupOptimalControlProblem begins" << std::endl;
   DualityLeggedInterface::setupOptimalControlProblem(taskFile, urdfFile, referenceFile, verbose);
   getOptimalControlProblem().softConstraintPtr->erase("duality_lagrangian");
 
@@ -56,6 +57,7 @@ void DCbfDualityLeggedInterface::setupOptimalControlProblem(const std::string& t
   std::unique_ptr<DCbfLagrangianAd> lagrangian(new DCbfLagrangianAd(*obstacles_, dualityInfo_));
   getOptimalControlProblem().softConstraintPtr->add(
       "dcbf_lagrangian", std::unique_ptr<StateInputCost>(new StateInputSoftConstraint(std::move(lagrangian), std::move(penalty_lag))));
+  std::cout << "[DCbfLeggedInterface.cpp] DCbf setupOptimalControlProblem success" << std::endl;
 }
 
 }  // namespace cbf

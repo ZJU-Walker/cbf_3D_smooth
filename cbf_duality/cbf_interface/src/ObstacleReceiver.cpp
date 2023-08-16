@@ -50,9 +50,10 @@ void ObstacleReceiver::preSolverRun(scalar_t /*initTime*/, scalar_t /*finalTime*
     }
     if (o < msgsSize_) {
       if (num_robots == 1) {
-        // std::cout << "***********************"  << std::endl;
+        // std::cout << "***************/********"  << std::endl;
         // std::cout << "*****Only body involved" << std::endl;
         // std::cout << "dist_body: " << dists_[o][0] << std::endl;
+        // std::cout << "base_pose: " << centroidal_model::getBasePose(currentState, obstaclePtr_->getInfo().centroidalInfo) << std::endl;
         // std::cout << "Robot body A:\n " << robot[0].getA() << std::endl;
         // std::cout << "Robot body b:\n " << robot[0].getB() << std::endl;
         // std::cout << "Robot body pose:\n " << centroidal_model::getBasePose(currentState, obstaclePtr_->getInfo().centroidalInfo) << std::endl;
@@ -68,7 +69,11 @@ void ObstacleReceiver::preSolverRun(scalar_t /*initTime*/, scalar_t /*finalTime*
         distances.dist_calf4.push_back(dists_[o][0]);
       }
       else if (num_robots == 9) {
-        std::cout << "dist_thigh:" << dists_[o][1] << std::endl;
+        std::cout << "***********************"  << std::endl;
+        std::cout << "dist_body: " << dists_[o][0] << std::endl;
+        std::cout << "dist_calf_1: " << dists_[o][1] << std::endl;
+        std::cout << "base_pose_x_y_z: " << centroidal_model::getBasePose(currentState, obstaclePtr_->getInfo().centroidalInfo)[0] << "," << centroidal_model::getBasePose(currentState, obstaclePtr_->getInfo().centroidalInfo)[1] << "," << centroidal_model::getBasePose(currentState, obstaclePtr_->getInfo().centroidalInfo)[2] << std::endl;
+        std::cout << "***********************"  << std::endl;
         distances.dist_body.push_back(dists_[o][0]);
         distances.dist_thigh1.push_back(dists_[o][1]);
         distances.dist_thigh2.push_back(dists_[o][2]);
@@ -78,6 +83,28 @@ void ObstacleReceiver::preSolverRun(scalar_t /*initTime*/, scalar_t /*finalTime*
         distances.dist_calf2.push_back(dists_[o][6]);
         distances.dist_calf3.push_back(dists_[o][7]);
         distances.dist_calf4.push_back(dists_[o][8]);
+      }
+      else if (num_robots == 5) {
+        distances.dist_body.push_back(dists_[o][0]);
+        distances.dist_thigh1.push_back(dists_[o][1]);
+        distances.dist_thigh2.push_back(dists_[o][2]);
+        distances.dist_thigh3.push_back(dists_[o][3]);
+        distances.dist_thigh4.push_back(dists_[o][4]);
+        distances.dist_calf1.push_back(dists_[o][0]);
+        distances.dist_calf2.push_back(dists_[o][0]);
+        distances.dist_calf3.push_back(dists_[o][0]);
+        distances.dist_calf4.push_back(dists_[o][0]);
+      }
+      else if (num_robots == 2) {
+        distances.dist_body.push_back(dists_[o][0]);
+        distances.dist_thigh1.push_back(dists_[o][0]);
+        distances.dist_thigh2.push_back(dists_[o][0]);
+        distances.dist_thigh3.push_back(dists_[o][0]);
+        distances.dist_thigh4.push_back(dists_[o][0]);
+        distances.dist_calf1.push_back(dists_[o][0]);
+        distances.dist_calf2.push_back(dists_[o][0]);
+        distances.dist_calf3.push_back(dists_[o][0]);
+        distances.dist_calf4.push_back(dists_[o][0]);
       }
       else {
         std::cout << "num_robots invalid" << std::endl;
@@ -129,6 +156,7 @@ void CbfObstaclesReceiver::preSolverRun(scalar_t initTime, scalar_t finalTime, c
         dists_[o][r] = 0;
     }
   }
+  std::cout << "[ObsatcleReceiver] dist_body: " << dists_[0][0] << std::endl;
   dynamic_cast<CbfObstacles&>(*obstaclePtr_).setDists(initTime, dists_);
 }
 
