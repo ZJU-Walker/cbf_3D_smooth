@@ -1,13 +1,33 @@
 <?xml version="1.0" ?>
 
 <launch>
-    <node pkg="rostopic" type="rostopic" name="obstacle3d_visualiser"
+    <node pkg="rostopic" type="rostopic" name="obstacle3d_1_visualiser"
           args="pub /obstacle3d_marker visualization_msgs/MarkerArray
       '{markers: [{header: {seq: 0, stamp: {secs: 0, nsecs: 0}, frame_id: 'odom'},
-        ns: 'cuboid_3d', id: 0, type: 1, action: 0,
-        pose: {position: {x: 2.0, y: 0.0, z: 0.05}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}},
+        ns: 'cuboid_3d_1', id: 0, type: 1, action: 0,
+        pose: {position: {x: 2.0, y: 0.0, z: 0.3}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}},
         scale: {x: 1.0, y: 1.0, z: 0.1},
-        color: {r: 0.7, g: 0., b: 0., a: 1.0},
+        color: {r: 0.7, g: 0., b: 0., a: 0.7},
+        lifetime: {secs: 0, nsecs: 0},
+        frame_locked: false }]}' -r 2 " output="screen"/>
+
+    <node pkg="rostopic" type="rostopic" name="obstacle3d_2_visualiser"
+          args="pub /obstacle3d_marker visualization_msgs/MarkerArray
+      '{markers: [{header: {seq: 0, stamp: {secs: 0, nsecs: 0}, frame_id: 'odom'},
+        ns: 'cuboid_3d_2', id: 0, type: 1, action: 0,
+        pose: {position: {x: 2.0, y: 0.55, z: 0.175}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}},
+        scale: {x: 1.0, y: 0.1, z: 0.35},
+        color: {r: 0.7, g: 0., b: 0., a: 0.7},
+        lifetime: {secs: 0, nsecs: 0},
+        frame_locked: false }]}' -r 2 " output="screen"/>
+
+    <node pkg="rostopic" type="rostopic" name="obstacle3d_3_visualiser"
+          args="pub /obstacle3d_marker visualization_msgs/MarkerArray
+      '{markers: [{header: {seq: 0, stamp: {secs: 0, nsecs: 0}, frame_id: 'odom'},
+        ns: 'cuboid_3d_3', id: 0, type: 1, action: 0,
+        pose: {position: {x: 2.0, y: -0.55, z: 0.175}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}},
+        scale: {x: 1.0, y: 0.1, z: 0.35},
+        color: {r: 0.7, g: 0., b: 0., a: 0.7},
         lifetime: {secs: 0, nsecs: 0},
         frame_locked: false }]}' -r 2 " output="screen"/>
 
@@ -20,16 +40,16 @@
         color: {r: 0.7, g: 0., b: 0., a: 1.0},
         lifetime: {secs: 0, nsecs: 0},
         frame_locked: false }]}' -r 2 " output="screen"/> -->
-
+<!-- 
     <node pkg="rostopic" type="rostopic" name="obstacle_pub" 
           args="pub /obstacle cbf_msgs/Obstacle
       '{header: {seq: 0, stamp: {secs: 0, nsecs: 0}, frame_id: 'odom'},
         polytopes: [
-          {pose: {position: {x: 2.0, y: 0.0, z: 0.05}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}},
-           size: {x: 0.3, y: 1.0, z: 0.01}}
+          {pose: {position: {x: 2.0, y: 0.0, z: 0.02}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}},
+           size: {x: 0.3, y: 1.0, z: 0.04}}
         ]
       }' -r 2"
-      output="screen"/>
+      output="screen"/> -->
 
       <!-- <node pkg="rostopic" type="rostopic" name="obstacle_pub"
           args="pub /obstacle cbf_msgs/Obstacle
