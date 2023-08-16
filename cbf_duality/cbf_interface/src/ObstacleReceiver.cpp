@@ -69,11 +69,11 @@ void ObstacleReceiver::preSolverRun(scalar_t /*initTime*/, scalar_t /*finalTime*
         distances.dist_calf4.push_back(dists_[o][0]);
       }
       else if (num_robots == 9) {
-        std::cout << "***********************"  << std::endl;
-        std::cout << "dist_body: " << dists_[o][0] << std::endl;
-        std::cout << "dist_calf_1: " << dists_[o][1] << std::endl;
-        std::cout << "base_pose_x_y_z: " << centroidal_model::getBasePose(currentState, obstaclePtr_->getInfo().centroidalInfo)[0] << "," << centroidal_model::getBasePose(currentState, obstaclePtr_->getInfo().centroidalInfo)[1] << "," << centroidal_model::getBasePose(currentState, obstaclePtr_->getInfo().centroidalInfo)[2] << std::endl;
-        std::cout << "***********************"  << std::endl;
+        // std::cout << "***********************"  << std::endl;
+        // std::cout << "dist_body: " << dists_[o][0] << std::endl;
+        // std::cout << "dist_calf_1: " << dists_[o][1] << std::endl;
+        // std::cout << "base_pose_x_y_z: " << centroidal_model::getBasePose(currentState, obstaclePtr_->getInfo().centroidalInfo)[0] << "," << centroidal_model::getBasePose(currentState, obstaclePtr_->getInfo().centroidalInfo)[1] << "," << centroidal_model::getBasePose(currentState, obstaclePtr_->getInfo().centroidalInfo)[2] << std::endl;
+        // std::cout << "***********************"  << std::endl;
         distances.dist_body.push_back(dists_[o][0]);
         distances.dist_thigh1.push_back(dists_[o][1]);
         distances.dist_thigh2.push_back(dists_[o][2]);
@@ -145,7 +145,7 @@ void CbfObstaclesReceiver::preSolverRun(scalar_t initTime, scalar_t finalTime, c
                                         const ReferenceManagerInterface& referenceManager) {
   ObstacleReceiver::preSolverRun(initTime, finalTime, currentState, referenceManager);
 
-  scalar_t threshold = 0.06;
+  scalar_t threshold = 0.1;
   size_t num_obstacles = obstaclePtr_->getInfo().numObstacles;
   size_t num_robots = obstaclePtr_->getInfo().numRobots;
   for (size_t o = 0; o < num_obstacles; ++o) {
@@ -156,7 +156,7 @@ void CbfObstaclesReceiver::preSolverRun(scalar_t initTime, scalar_t finalTime, c
         dists_[o][r] = 0;
     }
   }
-  std::cout << "[ObsatcleReceiver] dist_body: " << dists_[0][0] << std::endl;
+  std::cout << "[ObsatcleReceiver] dist_: " << dists_[0][0] << std::endl;
   dynamic_cast<CbfObstacles&>(*obstaclePtr_).setDists(initTime, dists_);
 }
 
