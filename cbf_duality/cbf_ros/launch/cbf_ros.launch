@@ -3,6 +3,7 @@
 <launch>
     <!-- obstalce visualize -->
     <include file="$(find cbf_ros)/launch/obstacle_test.launch"/>
+    <include file="$(find cbf_controllers)/test/dcbf_robot.launch"/>
 
     <!-- visualization config -->
     <arg name="rviz"               default="true" />
@@ -14,7 +15,7 @@
     <!-- The reference related config file of the robot -->
     <arg name="referenceFile" default="$(find cbf_controllers)/config/reference.info"/>
     <!-- The URDF model of the robot -->
-    <arg name="urdfFile" default="$(find legged_unitree_description)/urdf/go1.urdf"/>
+    <arg name="urdfFile" default="$(find legged_unitree_description)/urdf/a1.urdf"/>
     <!-- The file defining gait definition -->
     <!-- <arg name="gaitCommandFile" default="$(find legged_controllers)/config/go1/gait.info"/> -->
     <arg name="gaitCommandFile"   default="$(find ocs2_legged_robot)/config/command/gait.info"/>
@@ -24,7 +25,6 @@
         <arg name="rvizconfig" default="$(find cbf_ros)/rviz/rviz.rviz"/>
         <node pkg="rviz" type="rviz" name="rviz" args="-d $(arg rvizconfig)" output="screen"/>
     </group>
-
     <!-- make the files into global parameters -->
     <param name="multiplot"         value="$(arg multiplot)"/>
     <param name="taskFile"          value="$(arg taskFile)" />
@@ -38,9 +38,10 @@
     <node pkg="cbf_ros" type="cbf_dummy" name="cbf_dummy"
           output="screen" launch-prefix="gnome-terminal --"/>
 
-    <node pkg="cbf_ros" type="cbf_target" name="cbf_target"
-          output="screen" launch-prefix="gnome-terminal --"/>
-
+    <node pkg="cbf_ros" type="cbf_target" name="cbf_target" output="screen" launch-prefix="gnome-terminal --"/>
+    
+    <!-- <node pkg="legged_controllers" type="legged_target_trajectories_publisher" name="legged_robot_target"
+          output="screen"/> -->
     <node pkg="ocs2_legged_robot_ros" type="legged_robot_gait_command" name="legged_robot_gait_command"
           output="screen" launch-prefix="gnome-terminal --"/>
 </launch>
