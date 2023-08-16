@@ -217,7 +217,7 @@ template <typename SCALAR>
 Rectangle3d<SCALAR> createRobotRegion3d_body(const vector_temp<SCALAR>& state, const CentroidalModelInfo& info) {
   vector_temp<SCALAR> basePose = centroidal_model::getBasePose(state, info);
   vector_temp<SCALAR> size(3);
-  size << SCALAR(0.27), SCALAR(0.18), SCALAR(0.08);// TODO:robot body size to be changed
+  size << SCALAR(0.4), SCALAR(0.2), SCALAR(0.08);// TODO:robot body size to be changed
   return Rectangle3d<SCALAR>(basePose, size);
 }
 
@@ -387,6 +387,10 @@ std::vector<Rectangle3d<SCALAR>> createRobotRegion3d (const vector_temp<SCALAR>&
   // ret.push_back(createRobotRegion3d_body(state, info));
   // ret.push_back(createRobotRegion3d_body(state, info));
   // ret.push_back(createRobotRegion3d_body(state, info));
+  // ret.push_back(createRobotRegion3d_thigh(state, info, 1));
+  // ret.push_back(createRobotRegion3d_thigh(state, info, 2));
+  // ret.push_back(createRobotRegion3d_thigh(state, info, 3));
+  // ret.push_back(createRobotRegion3d_thigh(state, info, 4));
   // ret.push_back(createRobotRegion3d_thigh(state, info, 1));
   // ret.push_back(createRobotRegion3d_thigh(state, info, 2));
   // ret.push_back(createRobotRegion3d_thigh(state, info, 3));

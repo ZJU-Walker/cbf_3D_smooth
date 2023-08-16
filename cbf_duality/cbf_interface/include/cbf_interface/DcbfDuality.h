@@ -22,7 +22,7 @@ class DCbfLagrangianAd : public DualityBaseAd {
 
   ad_vector_t constraintFunction(ad_scalar_t time, const ad_vector_t& state, const ad_vector_t& input,
                                  const ad_vector_t& parameters) const override {
-    scalar_t decay_rate = 1.0;
+    scalar_t decay_rate = 5;
 
     auto robot = createRobotRegion3d(state, info_.centroidalInfo);
 

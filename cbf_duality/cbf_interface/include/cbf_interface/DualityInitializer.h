@@ -47,6 +47,12 @@ void DualityInitializer::compute(scalar_t time, const vector_t& state, scalar_t 
   const auto contact_flags = referenceManagerPtr_->getContactFlags(time);
   input = weightCompensatingInput(info_.centroidalInfo, contact_flags);
   auto robot = createRobotRegion3d(state, info_.centroidalInfo);// need to change to 3d
+  std::cout << "************************" << std::endl;
+  std::cout << "thigh a_ : " << std::endl;
+  std::cout << robot[0].getA() << std::endl;
+  std::cout << "thigh b_ : " << std::endl;
+  std::cout << robot[0].getB() << std::endl;
+  std::cout << "************************" << std::endl;
   bool need_update = false;
   for (size_t o = 0; o < info_.numObstacles; o++) {
     for (size_t r = 0; r < info_.numRobots; r++) {
