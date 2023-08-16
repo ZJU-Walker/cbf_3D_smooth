@@ -66,7 +66,97 @@ Visualization Manager:
         Expand Joint Details: false
         Expand Link Details: false
         Expand Tree: false
+        LF_FOOT:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        LF_calf:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        LF_hip:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        LF_thigh:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        LH_FOOT:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        LH_calf:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        LH_hip:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        LH_thigh:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         Link Tree Style: Links in Alphabetic Order
+        RF_FOOT:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        RF_calf:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        RF_hip:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        RF_thigh:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        RH_FOOT:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        RH_calf:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        RH_hip:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        RH_thigh:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        base:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        unitree_imu:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
       Name: RobotModel
       Robot Description: legged_robot_description
       TF Prefix: ""
@@ -74,7 +164,7 @@ Visualization Manager:
       Value: true
       Visual Enabled: true
     - Class: rviz/TF
-      Enabled: true
+      Enabled: false
       Filter (blacklist): ""
       Filter (whitelist): ""
       Frame Timeout: 15
@@ -89,14 +179,13 @@ Visualization Manager:
       Tree:
         {}
       Update Interval: 0
-      Value: true
+      Value: false
     - Class: rviz/MarkerArray
       Enabled: true
       Marker Topic: /legged_robot/optimizedStateTrajectory
       Name: Optimized State Trajectory
       Namespaces:
-        CoM Trajectory: true
-        EE Trajectories: true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/MarkerArray
@@ -104,10 +193,7 @@ Visualization Manager:
       Marker Topic: /legged_robot/currentState
       Name: Current State
       Namespaces:
-        Center of Pressure: true
-        EE Forces: true
-        EE Positions: true
-        Support Polygon: true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/Group
@@ -158,6 +244,14 @@ Visualization Manager:
           Value: true
       Enabled: true
       Name: Target Trajectories
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /obstacle3d_marker
+      Name: MarkerArray
+      Namespaces:
+        cuboid_3d: true
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 238; 238; 238
@@ -184,7 +278,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 2.5402400493621826
+      Distance: 7.006222248077393
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -192,17 +286,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: -0.17801520228385925
-        Y: 0.39354705810546875
-        Z: 0.4320068359375
+        X: -0.2891101837158203
+        Y: 0.2735961377620697
+        Z: 0.48345473408699036
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.3903983533382416
+      Pitch: 0.36039817333221436
       Target Frame: <Fixed Frame>
-      Yaw: 2.2036001682281494
+      Yaw: 1.2504165172576904
     Saved: ~
 Window Geometry:
   Displays:
