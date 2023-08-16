@@ -31,6 +31,7 @@ find_package(catkin REQUIRED COMPONENTS
   ${CATKIN_PACKAGE_DEPENDENCIES}
   cbf_controllers
   cbf_interface
+  legged_controllers
 )
 
 find_package(Boost REQUIRED COMPONENTS
@@ -57,6 +58,7 @@ catkin_package(
     ${CATKIN_PACKAGE_DEPENDENCIES}
     cbf_controllers
     cbf_interface
+    legged_controllers
   DEPENDS
     Boost
     pinocchio
@@ -127,6 +129,7 @@ target_compile_options(cbf_dummy PRIVATE ${OCS2_CXX_FLAGS})
 # Keyboard command node for target trajectories
 add_executable(cbf_target
   src/cbfPoseCommandNode.cpp
+  # src/TargetTrajectoriesPublisher.cpp
 )
 add_dependencies(cbf_target
   ${PROJECT_NAME}
