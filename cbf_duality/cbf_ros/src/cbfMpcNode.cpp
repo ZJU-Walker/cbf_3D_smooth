@@ -68,8 +68,8 @@ int main(int argc, char** argv) {
 
   // Robot interface
   // LeggedRobotInterface interface(taskFile, urdfFile, referenceFile);
-
-  DualityLeggedInterface interface(taskFile, urdfFile, referenceFile, false);
+  DCbfDualityLeggedInterface interface(taskFile, urdfFile, referenceFile, false);
+  // DualityLeggedInterface interface(taskFile, urdfFile, referenceFile, false);
   interface.setupOptimalControlProblem(taskFile, urdfFile, referenceFile, false);
   // interface = std::make_shared<DualityLeggedInterface>(taskFile, urdfFile, referenceFile, false);
   // interface->setupOptimalControlProblem(taskFile, urdfFile, referenceFile, false);
@@ -96,25 +96,16 @@ int main(int argc, char** argv) {
 
   std::cout << "[cbfMpcNode.cpp] main step 6" << std::endl;
 
-  // observer for zero velocity constraints (only add this for debugging as it slows down the solver)
-  if (multiplot) {
-    auto createStateInputBoundsObserver = [&](const std::string& termName) {
-      const ocs2::scalar_array_t observingTimePoints{0.0};
-      const std::vector<std::string> topicNames{"metrics/" + termName + "/0MsLookAhead"};
-      auto callback = ocs2::ros::createConstraintCallback(nodeHandle, {0.0}, topicNames,
-                                                          ocs2::ros::CallbackInterpolationStrategy::linear_interpolation);
-      return ocs2::SolverObserver::ConstraintTermObserver(ocs2::SolverObserver::Type::Intermediate, termName, std::move(callback));
-    };
-    for (size_t i = 0; i < interface.getCentroidalModelInfo().numThreeDofContacts; i++) {
-      const std::string& footName = interface.modelSettings().contactNames3DoF[i];
-      mpc.getSolverPtr()->addSolverObserver(createStateInputBoundsObserver(footName + "_zeroVelocity"));
-    }
-  }
+  // obstalce receiver
+  auto obstacle_receiver =
+      std::make_shared<CbfObstaclesReceiver>(nodeHandle, dynamic_cast<DCbfDualityLeggedInterface&>(interface).getObstacles(), mpc.getSolverPtr());
+  mpc.getSolverPtr()->addSynchronizedModule(obstacle_receiver);
 
+  std::cout << "[cbfMpcNode.cpp] main step 7" << std::endl;
   // Launch MPC ROS node
   MPC_ROS_Interface mpcNode(mpc, robotName);
   mpcNode.launchNodes(nodeHandle);
-  std::cout << "[cbfMpcNode.cpp] main step 7" << std::endl;
+  std::cout << "[cbfMpcNode.cpp] main step 8" << std::endl;
   // Successful exit
   return 0;
 }

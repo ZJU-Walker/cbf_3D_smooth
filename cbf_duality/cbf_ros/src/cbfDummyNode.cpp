@@ -49,6 +49,7 @@ using namespace ocs2;
 using namespace cbf;
 
 int main(int argc, char** argv) {
+  std::cout << "[cbfDummyNode.cpp] start dummy node" << std::endl;
   const std::string robotName = "legged_robot";
 
   // Initialize ros node
@@ -63,13 +64,16 @@ int main(int argc, char** argv) {
   // Robot interface
   // TODO may need to change interface
   // LeggedRobotInterface interface(taskFile, urdfFile, referenceFile);
-  DualityLeggedInterface interface(taskFile, urdfFile, referenceFile, false);
+  // DualityLeggedInterface interface(taskFile, urdfFile, referenceFile, false);
+  DCbfDualityLeggedInterface interface(taskFile, urdfFile, referenceFile, false);
   interface.setupOptimalControlProblem(taskFile, urdfFile, referenceFile, false);
-
+  std::cout << "[cbfDummyNode.cpp] dummy node step 1" << std::endl;
   // MRT
   MRT_ROS_Interface mrt(robotName);
   mrt.initRollout(&interface.getRollout());
   mrt.launchNodes(nodeHandle);
+
+  std::cout << "[cbfDummyNode.cpp] dummy node step 2" << std::endl;
 
   // Visualization
   CentroidalModelPinocchioMapping pinocchioMapping(interface.getCentroidalModelInfo());
@@ -79,23 +83,27 @@ int main(int argc, char** argv) {
       interface.getPinocchioInterface(), interface.getCentroidalModelInfo(), endEffectorKinematics, nodeHandle);
   // TODO: selfCollisionVisualiztion can be added? 
 
+  std::cout << "[cbfDummyNode.cpp] dummy node step 3" << std::endl;
+
   // Dummy legged robot
   MRT_ROS_Dummy_Loop leggedRobotDummySimulator(mrt, interface.mpcSettings().mrtDesiredFrequency_,
                                                interface.mpcSettings().mpcDesiredFrequency_);
   leggedRobotDummySimulator.subscribeObservers({cbfVisualization_});
 
+
+  std::cout << "[cbfDummyNode.cpp] dummy node step 4" << std::endl;
   // Initial state
   SystemObservation initObservation;
   initObservation.state = interface.getInitialState();
   initObservation.input = vector_t::Zero(interface.getCentroidalModelInfo().inputDim);
   initObservation.mode = ModeNumber::STANCE;
-
+  std::cout << "[cbfDummyNode.cpp] dummy node step 5" << std::endl;
   // Initial command
   TargetTrajectories initTargetTrajectories({0.0}, {initObservation.state}, {initObservation.input});
-
+  std::cout << "[cbfDummyNode.cpp] dummy node step 6" << std::endl;
   // run dummy
   leggedRobotDummySimulator.run(initObservation, initTargetTrajectories);
-
+  std::cout << "[cbfDummyNode.cpp] dummy node step 7" << std::endl;
   // Successful exit
   return 0;
 }
