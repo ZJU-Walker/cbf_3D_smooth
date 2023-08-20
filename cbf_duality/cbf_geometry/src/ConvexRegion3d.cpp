@@ -25,8 +25,8 @@ Rectangle3d<SCALAR>::Rectangle3d(const vector_temp<SCALAR>& pose, const vector_t
   rotRoll << SCALAR(1), SCALAR(0), SCALAR(0),
              SCALAR(0), SCALAR(cos(roll)), SCALAR(-sin(roll)),
              SCALAR(0), SCALAR(sin(roll)), SCALAR(cos(roll));
-  // rot = rotYaw * rotPitch * rotRoll;
-  rot = rotRoll * rotPitch * rotYaw;
+  rot = rotYaw * rotPitch * rotRoll;
+  // rot = rotRoll * rotPitch * rotYaw;
   
   this->a_ << SCALAR(1), SCALAR(0), SCALAR(0),
               SCALAR(-1), SCALAR(0), SCALAR(0), 
