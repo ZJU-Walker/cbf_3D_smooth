@@ -36,11 +36,61 @@ DualityInfo createDualityInfo(const CentroidalModelInfo& info, size_t numObstacl
 template <typename SCALAR>
 vector_temp<SCALAR> eulerAnglesFromRotationMatrix(matrix_temp<SCALAR> R) {
     vector_temp<SCALAR> angles(3);
-    angles[2] = atan2(R(1, 0), R(0, 0)); // Roll (X)
-    angles[1] = atan2(-R(2, 0), sqrt(R(2, 1) * R(2, 1) + R(2, 2) * R(2, 2))); // Pitch (Y)
-    angles[0] = atan2(R(2, 1), R(2, 2)); // Yaw (Z)
+    SCALAR theta, psi, phi;
+    if (R(2, 0) != SCALAR(1) && R(2, 0) != SCALAR(-1)) {
+      theta = -asin(R(2, 0));
+      psi = atan2(R(2, 1) / cos(theta), R(2, 2) / cos(theta));
+      phi = atan2(R(1, 0) / cos(theta), R(0, 0) / cos(theta));
+    } 
+    else {
+      phi = SCALAR(0);
+      if (R(2, 0) == SCALAR(-1)) {
+        theta = SCALAR(M_PI / 2);
+        psi = phi + atan2(R(0, 1), R(0, 2));
+      } 
+      else {
+        theta = SCALAR(-M_PI / 2);
+        psi = -phi + atan2(-R(0, 1), -R(0, 2));
+      }
+    }
+    angles << phi, theta, psi;
     return angles;
 }
+
+template <typename SCALAR>
+matrix_temp<SCALAR> calculateRotateMatrix(SCALAR roll, SCALAR pitch, SCALAR yaw) {
+  matrix_temp<SCALAR> R(3, 3);
+  matrix_temp<SCALAR> rotYaw(3, 3), rotPitch(3, 3), rotRoll(3, 3);
+  // Z
+  rotYaw << SCALAR(cos(yaw)), SCALAR(-sin(yaw)), SCALAR(0),
+            SCALAR(sin(yaw)), SCALAR(cos(yaw)), SCALAR(0),
+            SCALAR(0), SCALAR(0), SCALAR(1);
+  // Y
+  rotPitch << SCALAR(cos(pitch)), SCALAR(0), SCALAR(sin(pitch)),
+              SCALAR(0), SCALAR(1), SCALAR(0),
+              SCALAR(-sin(pitch)), SCALAR(0), SCALAR(cos(pitch));
+  // X
+  rotRoll << SCALAR(1), SCALAR(0), SCALAR(0),
+             SCALAR(0), SCALAR(cos(roll)), SCALAR(-sin(roll)),
+             SCALAR(0), SCALAR(sin(roll)), SCALAR(cos(roll));
+  R = rotYaw * rotPitch * rotRoll;
+  return R;
+}
+
+template <typename SCALAR>
+void headToWorld(const vector_temp<SCALAR>& base_origin, const vector_temp<SCALAR>& base_pose, const vector_temp<SCALAR>& head_origin, vector_temp<SCALAR>& point_in_world, vector_temp<SCALAR>& pose_in_world) {
+  matrix_temp<SCALAR> R_base_to_world(3,3);
+  SCALAR roll_base_to_world = base_pose[2];
+  SCALAR pitch_base_to_world = base_pose[1];
+  SCALAR yaw_base_to_world = base_pose[0];
+  R_base_to_world = calculateRotateMatrix(roll_base_to_world, pitch_base_to_world, yaw_base_to_world);
+  vector_temp<SCALAR> point_world = R_base_to_world * head_origin + base_origin;
+  matrix_temp<SCALAR> R_head_to_world(3,3);
+  R_head_to_world = R_base_to_world;
+  vector_temp<SCALAR> euler_angles = eulerAnglesFromRotationMatrix(R_head_to_world); // ZYX顺序
+  point_in_world = point_world;
+  pose_in_world = euler_angles;
+};
 
 // convert point in thigh frame to world frame
 template <typename SCALAR>
@@ -51,30 +101,32 @@ void thighToWorld(const vector_temp<SCALAR>& base_origin, const vector_temp<SCAL
   SCALAR roll_thigh_to_base = thigh_pose[2];
   SCALAR pitch_thigh_to_base = thigh_pose[1];
   SCALAR yaw_thigh_to_base = thigh_pose[0];
-  R_thigh_to_base << cos(yaw_thigh_to_base) * cos(pitch_thigh_to_base), cos(yaw_thigh_to_base) * sin(pitch_thigh_to_base) * sin(roll_thigh_to_base) - sin(yaw_thigh_to_base) * cos(roll_thigh_to_base), cos(yaw_thigh_to_base) * sin(pitch_thigh_to_base) * cos(roll_thigh_to_base) + sin(yaw_thigh_to_base) * sin(roll_thigh_to_base),
-                     sin(yaw_thigh_to_base) * cos(pitch_thigh_to_base), sin(yaw_thigh_to_base) * sin(pitch_thigh_to_base) * sin(roll_thigh_to_base) + cos(yaw_thigh_to_base) * cos(roll_thigh_to_base), sin(yaw_thigh_to_base) * sin(pitch_thigh_to_base) * cos(roll_thigh_to_base) - cos(yaw_thigh_to_base) * sin(roll_thigh_to_base),
-                     -sin(pitch_thigh_to_base), cos(pitch_thigh_to_base) * sin(roll_thigh_to_base), cos(pitch_thigh_to_base) * cos(roll_thigh_to_base);
-  vector_temp<SCALAR> point_thigh(3);
-  point_thigh << point_in_thigh[0], point_in_thigh[1], point_in_thigh[2];
-  vector_temp<SCALAR> point_base = R_thigh_to_base * point_thigh + thigh_origin;
+  R_thigh_to_base = calculateRotateMatrix(roll_thigh_to_base, pitch_thigh_to_base, SCALAR(0));
+  vector_temp<SCALAR> point_base = R_thigh_to_base * point_in_thigh + thigh_origin;
 
   matrix_temp<SCALAR> R_base_to_world(3,3);
   SCALAR roll_base_to_world = base_pose[2];
   SCALAR pitch_base_to_world = base_pose[1];
   SCALAR yaw_base_to_world = base_pose[0];
-  R_base_to_world << cos(yaw_base_to_world) * cos(pitch_base_to_world), cos(yaw_base_to_world) * sin(pitch_base_to_world) * sin(roll_base_to_world) - sin(yaw_base_to_world) * cos(roll_base_to_world), cos(yaw_base_to_world) * sin(pitch_base_to_world) * cos(roll_base_to_world) + sin(yaw_base_to_world) * sin(roll_base_to_world),
-                     sin(yaw_base_to_world) * cos(pitch_base_to_world), sin(yaw_base_to_world) * sin(pitch_base_to_world) * sin(roll_base_to_world) + cos(yaw_base_to_world) * cos(roll_base_to_world), sin(yaw_base_to_world) * sin(pitch_base_to_world) * cos(roll_base_to_world) - cos(yaw_base_to_world) * sin(roll_base_to_world),
-                     -sin(pitch_base_to_world), cos(pitch_base_to_world) * sin(roll_base_to_world), cos(pitch_base_to_world) * cos(roll_base_to_world);
+  R_base_to_world = calculateRotateMatrix(roll_base_to_world, pitch_base_to_world, yaw_base_to_world);
   vector_temp<SCALAR> point_world = R_base_to_world * point_base + base_origin;
+  // print out R base to world
+  // std::cout << "R_base_to_world: " << std::endl;
+  std::cout << R_base_to_world(0,0) << " " << R_base_to_world(0,1) << " " << R_base_to_world(0,2) << std::endl;
+  std::cout << R_base_to_world(1,0) << " " << R_base_to_world(1,1) << " " << R_base_to_world(1,2) << std::endl;
+  std::cout << R_base_to_world(2,0) << " " << R_base_to_world(2,1) << " " << R_base_to_world(2,2) << std::endl;
+
   matrix_temp<SCALAR> R_thigh_to_world(3,3);
-  R_thigh_to_world = R_base_to_world * R_thigh_to_base;
+  // R_thigh_to_world = R_thigh_to_base * R_base_to_world;
+  R_thigh_to_world = R_base_to_world * R_thigh_to_base * calculateRotateMatrix(SCALAR(0), SCALAR(0), SCALAR(0.000000000000000001));
+  // R_thigh_to_world = R_thigh_to_base;
   
   vector_temp<SCALAR> euler_angles = eulerAnglesFromRotationMatrix(R_thigh_to_world); // ZYX顺序
-  // vector_temp <SCALAR> euler_angles(3);
-  // euler_angles << SCALAR(0), SCALAR(0), SCALAR(0);
-  // std::cout << "size" << R_thigh_to_world.size() << std::endl;
 
   point_in_world = point_world;
+  // point_in_world = base_origin;
+  // pose_in_world = euler_angles;
+  std::cout << "euler_angles: " << euler_angles(0) << " " << euler_angles(1) << " " << euler_angles(2) << std::endl;
   pose_in_world = euler_angles;
 }; 
 
@@ -84,36 +136,27 @@ void calfToWorld(const vector_temp<SCALAR>& base_origin, const vector_temp<SCALA
                  const vector_temp<SCALAR>& thigh_origin, const vector_temp<SCALAR>& thigh_pose,
                  const vector_temp<SCALAR>& calf_origin, const vector_temp<SCALAR>& calf_pose,
                  const vector_temp<SCALAR>& point_in_calf, vector_temp<SCALAR>& point_in_world, vector_temp<SCALAR>& pose_in_world) {
-  matrix_temp<SCALAR> R_thigh_to_base(3, 3);
-  SCALAR roll_thigh_to_base = thigh_pose[2];
-  SCALAR pitch_thigh_to_base = thigh_pose[1];
-  SCALAR yaw_thigh_to_base = thigh_pose[0];
-  R_thigh_to_base << cos(yaw_thigh_to_base) * cos(pitch_thigh_to_base), cos(yaw_thigh_to_base) * sin(pitch_thigh_to_base) * sin(roll_thigh_to_base) - sin(yaw_thigh_to_base) * cos(roll_thigh_to_base), cos(yaw_thigh_to_base) * sin(pitch_thigh_to_base) * cos(roll_thigh_to_base) + sin(yaw_thigh_to_base) * sin(roll_thigh_to_base),
-                     sin(yaw_thigh_to_base) * cos(pitch_thigh_to_base), sin(yaw_thigh_to_base) * sin(pitch_thigh_to_base) * sin(roll_thigh_to_base) + cos(yaw_thigh_to_base) * cos(roll_thigh_to_base), sin(yaw_thigh_to_base) * sin(pitch_thigh_to_base) * cos(roll_thigh_to_base) - cos(yaw_thigh_to_base) * sin(roll_thigh_to_base),
-                     -sin(pitch_thigh_to_base), cos(pitch_thigh_to_base) * sin(roll_thigh_to_base), cos(pitch_thigh_to_base) * cos(roll_thigh_to_base);
-    
   matrix_temp<SCALAR> R_calf_to_thigh(3, 3);
   SCALAR roll_calf_to_thigh = calf_pose[2];
   SCALAR pitch_calf_to_thigh = calf_pose[1];
   SCALAR yaw_calf_to_thigh = calf_pose[0];
-  R_calf_to_thigh << cos(yaw_calf_to_thigh) * cos(pitch_calf_to_thigh), cos(yaw_calf_to_thigh) * sin(pitch_calf_to_thigh) * sin(roll_calf_to_thigh) - sin(yaw_calf_to_thigh) * cos(roll_calf_to_thigh), cos(yaw_calf_to_thigh) * sin(pitch_calf_to_thigh) * cos(roll_calf_to_thigh) + sin(yaw_calf_to_thigh) * sin(roll_calf_to_thigh),
-                     sin(yaw_calf_to_thigh) * cos(pitch_calf_to_thigh), sin(yaw_calf_to_thigh) * sin(pitch_calf_to_thigh) * sin(roll_calf_to_thigh) + cos(yaw_calf_to_thigh) * cos(roll_calf_to_thigh), sin(yaw_calf_to_thigh) * sin(pitch_calf_to_thigh) * cos(roll_calf_to_thigh) - cos(yaw_calf_to_thigh) * sin(roll_calf_to_thigh),
-                     -sin(pitch_calf_to_thigh), cos(pitch_calf_to_thigh) * sin(roll_calf_to_thigh), cos(pitch_calf_to_thigh) * cos(roll_calf_to_thigh);
-  
-  vector_temp<SCALAR> point_calf(3);
-  point_calf << point_in_calf[0], point_in_calf[1], point_in_calf[2];
-  vector_temp<SCALAR> point_thigh = R_calf_to_thigh * point_calf + calf_origin;
+  R_calf_to_thigh = calculateRotateMatrix(SCALAR(0), pitch_calf_to_thigh, SCALAR(0));
+  vector_temp<SCALAR> point_thigh = R_calf_to_thigh * point_in_calf + calf_origin;
+
+  matrix_temp<SCALAR> R_thigh_to_base(3, 3);
+  SCALAR roll_thigh_to_base = thigh_pose[2];
+  SCALAR pitch_thigh_to_base = thigh_pose[1];
+  SCALAR yaw_thigh_to_base = thigh_pose[0];
+  R_thigh_to_base = calculateRotateMatrix(roll_thigh_to_base, pitch_thigh_to_base, SCALAR(0));
   vector_temp<SCALAR> point_base = R_thigh_to_base * point_thigh + thigh_origin;
-  
+
   matrix_temp<SCALAR> R_base_to_world(3,3);
   SCALAR roll_base_to_world = base_pose[2];
   SCALAR pitch_base_to_world = base_pose[1];
   SCALAR yaw_base_to_world = base_pose[0];
-  R_base_to_world << cos(yaw_base_to_world) * cos(pitch_base_to_world), cos(yaw_base_to_world) * sin(pitch_base_to_world) * sin(roll_base_to_world) - sin(yaw_base_to_world) * cos(roll_base_to_world), cos(yaw_base_to_world) * sin(pitch_base_to_world) * cos(roll_base_to_world) + sin(yaw_base_to_world) * sin(roll_base_to_world),
-                     sin(yaw_base_to_world) * cos(pitch_base_to_world), sin(yaw_base_to_world) * sin(pitch_base_to_world) * sin(roll_base_to_world) + cos(yaw_base_to_world) * cos(roll_base_to_world), sin(yaw_base_to_world) * sin(pitch_base_to_world) * cos(roll_base_to_world) - cos(yaw_base_to_world) * sin(roll_base_to_world),
-                     -sin(pitch_base_to_world), cos(pitch_base_to_world) * sin(roll_base_to_world), cos(pitch_base_to_world) * cos(roll_base_to_world);
-  
+  R_base_to_world = calculateRotateMatrix(roll_base_to_world, pitch_base_to_world, yaw_base_to_world);
   vector_temp<SCALAR> point_world = R_base_to_world * point_base + base_origin;
+  
   matrix_temp<SCALAR> R_calf_to_world(3,3);
   R_calf_to_world = R_base_to_world * R_thigh_to_base * R_calf_to_thigh;
 
@@ -216,9 +259,42 @@ const Eigen::Block<const Derived, -1, 1> getRobotLambda3d(const Eigen::MatrixBas
 template <typename SCALAR>
 Rectangle3d<SCALAR> createRobotRegion3d_body(const vector_temp<SCALAR>& state, const CentroidalModelInfo& info) {
   vector_temp<SCALAR> basePose = centroidal_model::getBasePose(state, info);
+  vector_temp<SCALAR> base_1(6);
+  base_1 << basePose(0), basePose(1), basePose(2)-SCALAR(0.03), basePose(3), basePose(4), basePose(5);
+  vector_temp<SCALAR> size(3);
+  size << SCALAR(0.2), SCALAR(0.2), SCALAR(0.08);// TODO:robot body size to be changed
+  return Rectangle3d<SCALAR>(base_1, size);
+}
+
+template <typename SCALAR>
+Rectangle3d<SCALAR> createRobotRegion3d_head(const vector_temp<SCALAR>& state, const CentroidalModelInfo& info) {
+  vector_temp<SCALAR> basePose = centroidal_model::getBasePose(state, info);
+  vector_temp<SCALAR> base_origin(3);
+  vector_temp<SCALAR> base_pose(3);
+  vector_temp<SCALAR> head_origin(3);
+  vector_temp<SCALAR> head_center_inworldframe(3);// center of thigh in world frame
+  vector_temp<SCALAR> head_pose_inworldframe(3);// thigh pose in world frame
+
+  base_origin << basePose(0), basePose(1), basePose(2);
+  base_pose << basePose(3), basePose(4), basePose(5);// ZYX
+  head_origin << SCALAR(0.18), SCALAR(0), SCALAR(0.0);// TODO: may need to change according to body shape
+  
+  headToWorld(base_origin, base_pose, head_origin, head_center_inworldframe, head_pose_inworldframe);
+  vector_temp<SCALAR> head_center(6);
+  head_center << head_center_inworldframe(0), head_center_inworldframe(1), head_center_inworldframe(2)-SCALAR(0.08), basePose(0), basePose(1), basePose(2);
+  vector_temp<SCALAR> size(3);
+  size << SCALAR(0.06), SCALAR(0.15), SCALAR(0.08);// TODO:robot body size to be changed
+  return Rectangle3d<SCALAR>(head_center, size);
+}
+
+template <typename SCALAR>
+Rectangle3d<SCALAR> createRobotRegion3d_body_2(const vector_temp<SCALAR>& state, const CentroidalModelInfo& info) {
+  vector_temp<SCALAR> basePose = centroidal_model::getBasePose(state, info);
+  vector_temp<SCALAR> base_1(6);
+  base_1 << basePose(0), basePose(1), basePose(2)-SCALAR(0.03), basePose(3), basePose(4), basePose(5);
   vector_temp<SCALAR> size(3);
   size << SCALAR(0.4), SCALAR(0.2), SCALAR(0.08);// TODO:robot body size to be changed
-  return Rectangle3d<SCALAR>(basePose, size);
+  return Rectangle3d<SCALAR>(base_1, size);
 }
 
 // create thigh (4)
@@ -243,23 +319,19 @@ Rectangle3d<SCALAR> createRobotRegion3d_thigh(const vector_temp<SCALAR>& state, 
   base_pose << basePose(3), basePose(4), basePose(5);// ZYX
   thigh1_origin << SCALAR(0.15), SCALAR(0.10), SCALAR(-0.04);// TODO: may need to change according to body shape
   thigh2_origin << SCALAR(-0.15), SCALAR(0.10), SCALAR(-0.04);
-  thigh3_origin << SCALAR(-0.15), SCALAR(-0.10), SCALAR(-0.04);
-  thigh4_origin << SCALAR(0.15), SCALAR(-0.10), SCALAR(-0.04);
+  thigh3_origin << SCALAR(0.15), SCALAR(-0.10), SCALAR(-0.04);
+  thigh4_origin << SCALAR(-0.15), SCALAR(-0.10), SCALAR(-0.04);
   // Leg Joint Positions: [LF, LH, RF, RH] LF_HAA LF_HFE LF_KFE
   vector_temp<SCALAR> jointAngle = centroidal_model::getJointAngles(state, info);// 12 x 1
   // TODO: here test
   // vector_temp<SCALAR> jointAngle(12);
   // jointAngle << SCALAR(0.0), SCALAR(0.0), SCALAR(0.0), SCALAR(0.0), SCALAR(0.0), SCALAR(0.0), SCALAR(0.0), SCALAR(0.0), SCALAR(0.0), SCALAR(0.0), SCALAR(0.0), SCALAR(0.0);
-  thigh1_pose << SCALAR(0), jointAngle(1), jointAngle(0);//LF
-  thigh2_pose << SCALAR(0), jointAngle(4), jointAngle(3);//LH
-  thigh3_pose << SCALAR(0), jointAngle(7), jointAngle(6);//RF
-  thigh4_pose << SCALAR(0), jointAngle(10), jointAngle(9);//RH
+  thigh1_pose << SCALAR(0), jointAngle(1), jointAngle(0);// LF
+  thigh2_pose << SCALAR(0), jointAngle(4), jointAngle(3);// LH
+  thigh3_pose << SCALAR(0), jointAngle(7), jointAngle(6);// RF
+  thigh4_pose << SCALAR(0), jointAngle(10), jointAngle(9);// RH
   // Initialize center of thigh to zero
   thigh_center_inthighframe << SCALAR(0), SCALAR(0), SCALAR(-0.1);
-
-  // These 2 paras are to be changed by function thighToWorld
-  thigh_center_inworldframe << SCALAR(0), SCALAR(0), SCALAR(0);
-  thigh_pose_inworldframe << SCALAR(0), SCALAR(0), SCALAR(0);
 
   if (i == 1) {
     thighToWorld(base_origin, base_pose, thigh1_origin, thigh1_pose, thigh_center_inthighframe, thigh_center_inworldframe, thigh_pose_inworldframe);
@@ -275,11 +347,16 @@ Rectangle3d<SCALAR> createRobotRegion3d_thigh(const vector_temp<SCALAR>& state, 
   }
 
   vector_temp<SCALAR> thigh_center(6);
-  // TODO: test here
   // thigh_center << SCALAR(0), SCALAR(0), SCALAR(0), SCALAR(0), SCALAR(0), SCALAR(0);
+  // thigh_center << SCALAR(0), SCALAR(0), SCALAR(0), thigh_pose_inworldframe(0), thigh_pose_inworldframe(1), thigh_pose_inworldframe(2);
+  // thigh_center << thigh_center_inworldframe(0), thigh_center_inworldframe(1), thigh_center_inworldframe(2), SCALAR(2.18329e-06), SCALAR(-5.54187e-06), SCALAR(-1.15814);
+  // thigh_center << thigh_center_inworldframe(0), thigh_center_inworldframe(1), thigh_center_inworldframe(2), thigh_pose_inworldframe(0), thigh_pose_inworldframe(1), SCALAR(0.0);
   thigh_center << thigh_center_inworldframe(0), thigh_center_inworldframe(1), thigh_center_inworldframe(2), thigh_pose_inworldframe(0), thigh_pose_inworldframe(1), thigh_pose_inworldframe(2);
+  std::cout << "thigh center: " << thigh_center_inworldframe(0) << " " << thigh_center_inworldframe(1) << " " << thigh_center_inworldframe(2) << std::endl;
+  std::cout << "thigh pose: " << thigh_pose_inworldframe(0) << " " << thigh_pose_inworldframe(1) << " " << thigh_pose_inworldframe(2) << std::endl;
   vector_temp<SCALAR> size(3);
-  size << SCALAR(0.04), SCALAR(0.04), SCALAR(0.247);
+  // size << SCALAR(0.04), SCALAR(0.04), SCALAR(0.25);
+  size << SCALAR(0.08), SCALAR(0.05), SCALAR(0.3);
   return Rectangle3d<SCALAR>(thigh_center, size);
 }
 
@@ -318,8 +395,8 @@ Rectangle3d<SCALAR> createRobotRegion3d_calf(const vector_temp<SCALAR>& state, c
 
   thigh1_origin << SCALAR(0.15), SCALAR(0.10), SCALAR(-0.04);// TODO: may need to change according to body shape
   thigh2_origin << SCALAR(-0.15), SCALAR(0.10), SCALAR(-0.04);
-  thigh3_origin << SCALAR(-0.15), SCALAR(-0.10), SCALAR(-0.04);
-  thigh4_origin << SCALAR(0.15), SCALAR(-0.10), SCALAR(-0.04);
+  thigh3_origin << SCALAR(0.15), SCALAR(-0.10), SCALAR(-0.04);
+  thigh4_origin << SCALAR(-0.15), SCALAR(-0.10), SCALAR(-0.04);
 
   calf1_origin  << SCALAR(0), SCALAR(0), SCALAR(-0.23);
   calf2_origin  << SCALAR(0), SCALAR(0), SCALAR(-0.23);
@@ -355,8 +432,10 @@ Rectangle3d<SCALAR> createRobotRegion3d_calf(const vector_temp<SCALAR>& state, c
   // TODO: test here
   // calf_center << SCALAR(0), SCALAR(0), SCALAR(0), SCALAR(0), SCALAR(0), SCALAR(0);
   calf_center << calf_center_inworldframe(0), calf_center_inworldframe(1), calf_center_inworldframe(2), calf_pose_inworldframe(0), calf_pose_inworldframe(1), calf_pose_inworldframe(2);
+  std::cout << "calf center: " << calf_center_inworldframe(0) << " " << calf_center_inworldframe(1) << " " << calf_center_inworldframe(2) << std::endl;
+  std::cout << "calf pose: " << calf_pose_inworldframe(0) << " " << calf_pose_inworldframe(1) << " " << calf_pose_inworldframe(2) << std::endl;
   vector_temp<SCALAR> size(3);
-  size << SCALAR(0.04), SCALAR(0.04), SCALAR(0.25);
+  size << SCALAR(0.2), SCALAR(0.2), SCALAR(0.3);
   // size << SCALAR(0.04), SCALAR(0.04), SCALAR(0.22);
   return Rectangle3d<SCALAR>(calf_center, size);
 }
@@ -377,7 +456,6 @@ std::vector<Rectangle3d<SCALAR>> createRobotRegion3d (const vector_temp<SCALAR>&
   // ret.push_back(createRobotRegion3d_body(state, info));
   // ret.push_back(createRobotRegion3d_body(state, info));
   // std::cout << "base pose [x,y,z]: " << centroidal_model::getBasePose(state, info)[0] << " " << centroidal_model::getBasePose(state, info)[1] << " " << centroidal_model::getBasePose(state, info)[2] << " " << std::endl;
-  ret.push_back(createRobotRegion3d_body(state, info));
   // ret.push_back(createRobotRegion3d_body(state, info));
   // ret.push_back(createRobotRegion3d_body(state, info));
   // ret.push_back(createRobotRegion3d_body(state, info));
@@ -385,8 +463,7 @@ std::vector<Rectangle3d<SCALAR>> createRobotRegion3d (const vector_temp<SCALAR>&
   // ret.push_back(createRobotRegion3d_body(state, info));
   // ret.push_back(createRobotRegion3d_body(state, info));
   // ret.push_back(createRobotRegion3d_body(state, info));
-  // ret.push_back(createRobotRegion3d_body(state, info));
-  // ret.push_back(createRobotRegion3d_body(state, info));
+  // ret.push_back(createRobotRegion3d_head(state, info));
   // ret.push_back(createRobotRegion3d_thigh(state, info, 1));
   // ret.push_back(createRobotRegion3d_thigh(state, info, 2));
   // ret.push_back(createRobotRegion3d_thigh(state, info, 3));
@@ -395,10 +472,15 @@ std::vector<Rectangle3d<SCALAR>> createRobotRegion3d (const vector_temp<SCALAR>&
   // ret.push_back(createRobotRegion3d_thigh(state, info, 2));
   // ret.push_back(createRobotRegion3d_thigh(state, info, 3));
   // ret.push_back(createRobotRegion3d_thigh(state, info, 4));
-  // ret.push_back(createRobotRegion3d_calf(state, info, 1));
-  // ret.push_back(createRobotRegion3d_calf(state, info, 2));
-  // ret.push_back(createRobotRegion3d_calf(state, info, 3));
-  // ret.push_back(createRobotRegion3d_calf(state, info, 4));
+
+  ret.push_back(createRobotRegion3d_thigh(state, info, 1));
+  ret.push_back(createRobotRegion3d_thigh(state, info, 2));
+  ret.push_back(createRobotRegion3d_thigh(state, info, 3));
+  ret.push_back(createRobotRegion3d_thigh(state, info, 4));
+  ret.push_back(createRobotRegion3d_calf(state, info, 1));
+  ret.push_back(createRobotRegion3d_calf(state, info, 2));
+  ret.push_back(createRobotRegion3d_calf(state, info, 3));
+  ret.push_back(createRobotRegion3d_calf(state, info, 4));
   // ret.push_back(createRobotRegion3d_calf(state, info, 1));
   // ret.push_back(createRobotRegion3d_calf(state, info, 2));
   // ret.push_back(createRobotRegion3d_calf(state, info, 3));

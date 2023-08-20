@@ -25,18 +25,28 @@ class DualityObstacles {
       // Obstalce_1_Pose << 20, 0, 0.0, 0, 0, 0;
       // Obstalce_1_Size << 0.3, 1.0, 0.04;
 
-      // vector_temp<scalar_t> Obstalce_1_Pose(6);
-      // vector_temp<scalar_t> Obstalce_1_Size(3);
-      // Obstalce_1_Pose << 2, 0, 0.08, 0, 0, 0;
-      // Obstalce_1_Size << 1, 1, 0.16;
-
       vector_temp<scalar_t> Obstalce_1_Pose(6);
       vector_temp<scalar_t> Obstalce_1_Size(3);
-      Obstalce_1_Pose << 2, 0, 0.73, 0, 0, 0;
-      Obstalce_1_Size << 0.5, 1, 1;
+      Obstalce_1_Pose << 2, 0, 0.02, 0, 0, 0;
+      Obstalce_1_Size << 0.3, 1, 0.04;
+
+      // vector_temp<scalar_t> Obstalce_1_Pose(6);
+      // vector_temp<scalar_t> Obstalce_1_Size(3);
+      // Obstalce_1_Pose << 2, 0, 0.71, 0, 0, 0;
+      // Obstalce_1_Size << 0.5, 1, 1;
+
+      // vector_temp<scalar_t> Obstalce_1_Pose(6);
+      // vector_temp<scalar_t> Obstalce_1_Size(3);
+      // Obstalce_1_Pose << 2, 0.11, 0.5, 0, 0, 0;
+      // Obstalce_1_Size << 0.5, 0.02, 1;
+
+      // vector_temp<scalar_t> Obstalce_2_Pose(6);
+      // vector_temp<scalar_t> Obstalce_2_Size(3);
+      // Obstalce_2_Pose << 2, -0.11, 0.5, 0, 0, 0;
+      // Obstalce_2_Size << 0.5, 0.02, 1;
 
       cuboid_.push_back(Rectangle3d<scalar_t>(Obstalce_1_Pose, Obstalce_1_Size));
-
+      // cuboid_.push_back(Rectangle3d<scalar_t>(Obstalce_2_Pose, Obstalce_2_Size));
     }
   }
 
@@ -59,17 +69,29 @@ class DualityObstacles {
     // vector_temp<scalar_t> Obstalce_1_Size(3);
     // Obstalce_1_Pose << 20, 0, 0.0, 0, 0, 0;
     // Obstalce_1_Size << 0.3, 1.0, 0.04;
+
     // vector_temp<scalar_t> Obstalce_1_Pose(6);
     // vector_temp<scalar_t> Obstalce_1_Size(3);
-    // Obstalce_1_Pose << 2, 0, 0.08, 0, 0, 0;
-    // Obstalce_1_Size << 1, 1, 0.16;
+    // Obstalce_1_Pose << 2, 0.11, 0.5, 0, 0, 0;
+    // Obstalce_1_Size << 0.5, 0.02, 1;
 
+    // vector_temp<scalar_t> Obstalce_2_Pose(6);
+    // vector_temp<scalar_t> Obstalce_2_Size(3);
+    // Obstalce_2_Pose << 2, -0.11, 0.5, 0, 0, 0;
+    // Obstalce_2_Size << 0.5, 0.02, 1;
+
+    // vector_temp<scalar_t> Obstalce_1_Pose(6);
+    // vector_temp<scalar_t> Obstalce_1_Size(3);
+    // Obstalce_1_Pose << 2, 0, 0.71, 0, 0, 0;
+    // Obstalce_1_Size << 0.5, 1, 1;
     vector_temp<scalar_t> Obstalce_1_Pose(6);
-    vector_temp<scalar_t> Obstalce_1_Size(3);
-    Obstalce_1_Pose << 2, 0, 0.73, 0, 0, 0;
-    Obstalce_1_Size << 0.5, 1, 1;
+      vector_temp<scalar_t> Obstalce_1_Size(3);
+      Obstalce_1_Pose << 2, 0, 0.02, 0, 0, 0;
+      Obstalce_1_Size << 0.3, 1, 0.04;
+
+
     cuboid_.push_back(Rectangle3d<scalar_t>(Obstalce_1_Pose, Obstalce_1_Size));
-    
+    // cuboid_.push_back(Rectangle3d<scalar_t>(Obstalce_2_Pose, Obstalce_2_Size));
   }
 
    // Get size of parameters
