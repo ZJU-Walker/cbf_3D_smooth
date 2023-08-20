@@ -3,12 +3,11 @@
 #include <vector>
 
 int main () {
-
-    std::vector<Eigen::Matrix<double, Eigen::Dynamic, 1>> dists_(10, Eigen::Matrix<double, Eigen::Dynamic, 1>::Zero(9));
-    for (int i = 0; i < 10; ++i) {
-        for (int j = 0; j < 9; ++j) {
-            dists_[i][j] = 1;
-        }
-    }
+    Eigen::Matrix<double, 3, 3> R;
+    R << 1, 2, 3,
+         4, 5, 6,
+         7, 8, 9;
+    std::cout << "R(3,1): " << R(3,1) << std::endl;
+    std::cout << "R(3,2): " << R(3,2) << std::endl;
     return 0;
 }
