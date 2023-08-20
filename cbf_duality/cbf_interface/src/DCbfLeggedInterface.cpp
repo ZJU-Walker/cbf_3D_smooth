@@ -43,7 +43,7 @@ void DualityLeggedInterface::setupModel(const std::string& taskFile, const std::
                                         bool verbose) {
   LeggedInterface::setupModel(taskFile, urdfFile, referenceFile, verbose);
   std::cout << "[DCbfLeggedInterface.h] create duality_info: robot_num = 1" << std::endl;
-  dualityInfo_ = createDualityInfo(getCentroidalModelInfo(), 1, 6, 1);// TODO
+  dualityInfo_ = createDualityInfo(getCentroidalModelInfo(), 1, 6, 8);// TODO
   getCentroidalModelInfo() = dualityInfo_.centroidalInfo;
 }
 
