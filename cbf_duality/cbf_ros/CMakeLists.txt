@@ -128,8 +128,8 @@ target_compile_options(cbf_dummy PRIVATE ${OCS2_CXX_FLAGS})
 
 # Keyboard command node for target trajectories
 add_executable(cbf_target
-  src/cbfPoseCommandNode.cpp
-  # src/TargetTrajectoriesPublisher.cpp
+  # src/cbfPoseCommandNode.cpp
+  src/TargetTrajectoriesPublisher.cpp
 )
 add_dependencies(cbf_target
   ${PROJECT_NAME}

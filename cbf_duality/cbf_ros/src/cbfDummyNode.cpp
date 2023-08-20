@@ -64,11 +64,11 @@ int main(int argc, char** argv) {
   // Robot interface
   // TODO may need to change interface
   // LeggedRobotInterface interface(taskFile, urdfFile, referenceFile);
-  DualityLeggedInterface interface(taskFile, urdfFile, referenceFile, false);
-  interface.setupOptimalControlProblem(taskFile, urdfFile, referenceFile, false);
+  // DualityLeggedInterface interface(taskFile, urdfFile, referenceFile, false);
+  // interface.setupOptimalControlProblem(taskFile, urdfFile, referenceFile, false);
 
-    // DCbfDualityLeggedInterface interface(taskFile, urdfFile, referenceFile, false);
-    // interface.setupOptimalControlProblem(taskFile, urdfFile, referenceFile, false);
+    DCbfDualityLeggedInterface interface(taskFile, urdfFile, referenceFile, false);
+    interface.setupOptimalControlProblem(taskFile, urdfFile, referenceFile, false);
 
   std::cout << "[cbfDummyNode.cpp] dummy node step 1" << std::endl;
   // MRT

@@ -68,12 +68,13 @@ class TargetTrajectoriesPublisher final {
         return;
       }
 
-      vector_t cmdVel = vector_t::Zero(4);
+      vector_t cmdVel = vector_t::Zero(6);
       cmdVel[0] = msg->linear.x;
       cmdVel[1] = msg->linear.y;
       cmdVel[2] = msg->linear.z;
       cmdVel[3] = msg->angular.z;
-
+      cmdVel[4] = msg->angular.y;
+      cmdVel[5] = msg->angular.x;
       const auto trajectories = cmdVelToTargetTrajectories_(cmdVel, latestObservation_);
       targetTrajectoriesPublisher_->publishTargetTrajectories(trajectories);
     };

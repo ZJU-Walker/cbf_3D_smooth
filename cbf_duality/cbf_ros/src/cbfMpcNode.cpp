@@ -70,11 +70,11 @@ int main(int argc, char** argv) {
   // DualityLeggedInterface interface(taskFile, urdfFile, referenceFile, false);
   // interface.setupOptimalControlProblem(taskFile, urdfFile, referenceFile, false);
 
-  // DCbfDualityLeggedInterface interface(taskFile, urdfFile, referenceFile, false);
-  // interface.setupOptimalControlProblem(taskFile, urdfFile, referenceFile, false);
-
-  DualityLeggedInterface interface(taskFile, urdfFile, referenceFile, false);
+  DCbfDualityLeggedInterface interface(taskFile, urdfFile, referenceFile, false);
   interface.setupOptimalControlProblem(taskFile, urdfFile, referenceFile, false);
+
+  // DualityLeggedInterface interface(taskFile, urdfFile, referenceFile, false);
+  // interface.setupOptimalControlProblem(taskFile, urdfFile, referenceFile, false);
 
   std::cout << "[cbfMpcNode.cpp] main step 3" << std::endl;
 
@@ -99,13 +99,13 @@ int main(int argc, char** argv) {
 
   // obstalce receiver
 
-  auto obstacle_receiver =
-    std::make_shared<ObstacleReceiver>(nodeHandle, dynamic_cast<DualityLeggedInterface&>(interface).getObstacles(), mpc.getSolverPtr());
-  mpc.getSolverPtr()->addSynchronizedModule(obstacle_receiver);
-
   // auto obstacle_receiver =
-  //   std::make_shared<CbfObstaclesReceiver>(nodeHandle, dynamic_cast<DCbfDualityLeggedInterface&>(interface).getObstacles(), mpc.getSolverPtr());
+  //   std::make_shared<ObstacleReceiver>(nodeHandle, dynamic_cast<DualityLeggedInterface&>(interface).getObstacles(), mpc.getSolverPtr());
   // mpc.getSolverPtr()->addSynchronizedModule(obstacle_receiver);
+
+  auto obstacle_receiver =
+    std::make_shared<CbfObstaclesReceiver>(nodeHandle, dynamic_cast<DCbfDualityLeggedInterface&>(interface).getObstacles(), mpc.getSolverPtr());
+  mpc.getSolverPtr()->addSynchronizedModule(obstacle_receiver);
   std::cout << "[cbfMpcNode.cpp] main step 7" << std::endl;
   // Launch MPC ROS node
   MPC_ROS_Interface mpcNode(mpc, robotName);

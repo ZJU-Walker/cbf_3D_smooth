@@ -36,8 +36,8 @@ TargetTrajectories targetPoseToTargetTrajectories(const vector_t& targetPose, co
   // desired state trajectory
   vector_t currentPose = observation.state.segment<6>(6);
   currentPose(2) = COM_HEIGHT;
-  currentPose(4) = 0;
-  currentPose(5) = 0;
+  // currentPose(4) = 0;
+  // currentPose(5) = 0;
   vector_array_t stateTrajectory(2, vector_t::Zero(observation.state.size()));
   stateTrajectory[0] << vector_t::Zero(6), currentPose, DEFAULT_JOINT_STATE;
   stateTrajectory[1] << vector_t::Zero(6), targetPose, DEFAULT_JOINT_STATE;
@@ -56,8 +56,10 @@ TargetTrajectories goalToTargetTrajectories(const vector_t& goal, const SystemOb
     target(1) = goal(1);
     target(2) = COM_HEIGHT;
     target(3) = goal(3);
-    target(4) = 0;
-    target(5) = 0;
+    target(4) = currentPose(4);
+    target(5) = currentPose(5);
+    // target(4) = 0;
+    // target(5) = 0;
     return target;
   }();
   const scalar_t targetReachingTime = observation.time + estimateTimeToTarget(targetPose - currentPose);
@@ -74,10 +76,12 @@ TargetTrajectories cmdVelToTargetTrajectories(const vector_t& cmdVel, const Syst
     vector_t target(6);
     target(0) = currentPose(0) + cmdVelRot(0) * timeToTarget;
     target(1) = currentPose(1) + cmdVelRot(1) * timeToTarget;
-    target(2) = COM_HEIGHT;
+    target(2) = COM_HEIGHT + cmdVelRot(2) * timeToTarget;
     target(3) = currentPose(3) + cmdVel(3) * timeToTarget;
-    target(4) = 0;
-    target(5) = 0;
+    target(4) = currentPose(4) + cmdVel(4) * timeToTarget;
+    target(5) = currentPose(5) + cmdVel(5) * timeToTarget;
+    // target(4) = 0;
+    // target(5) = 0;
     return target;
   }();
 
@@ -97,8 +101,8 @@ int main(int argc, char** argv) {
   // Get node parameters
   std::string referenceFile;
   std::string taskFile;
-  nodeHandle.getParam("/reference_file", referenceFile);
-  nodeHandle.getParam("/task_file", taskFile);
+  nodeHandle.getParam("/referenceFile", referenceFile);
+  nodeHandle.getParam("/taskFile", taskFile);
   std::cout << "Trajectories pub main step 3" << std::endl;
   loadData::loadCppDataType(referenceFile, "comHeight", COM_HEIGHT);
   loadData::loadEigenMatrix(referenceFile, "defaultJointState", DEFAULT_JOINT_STATE);
